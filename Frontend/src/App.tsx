@@ -13,7 +13,7 @@ import FoodLibrary from "./components/FoodLibrary";
 import DailyLogs from "./components/DailyLogs";
 import LoginPage from "./components/LoginPage";
 import RegisterPage from "./components/RegisterPage";
-
+import Budget from "./components/Budget";
 function App() {
   const [user, setUser] = useState<any>(null);
   const [logs, setLogs] = useState<any[]>([]);
@@ -194,6 +194,8 @@ function App() {
               }
             />
           </Routes>
+
+          <Route path="/budget" element={<Budget />} />
         </div>
 
         {/* Show Mobile Bottom Nav only if logged in */}
