@@ -129,7 +129,7 @@ function App() {
   };
 
   // Wrapper to protect routes from unauthenticated users
-  const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
+  const ProtectedRoute = ({ children }: { children: React.ReactElement }) => {
     if (!user) return <Navigate to="/login" />;
     return children;
   };
@@ -193,9 +193,16 @@ function App() {
                 </ProtectedRoute>
               }
             />
-          </Routes>
 
-          <Route path="/budget" element={<Budget />} />
+            <Route
+              path="/budget"
+              element={
+                <ProtectedRoute>
+                  <Budget />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
         </div>
 
         {/* Show Mobile Bottom Nav only if logged in */}

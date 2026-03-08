@@ -7,6 +7,7 @@ const MobileNav: React.FC = () => {
     { name: "Cook", path: "/cook", icon: "restaurant" },
     { name: "Menu", path: "/menu", icon: "menu_book" },
     { name: "Log", path: "/history", icon: "history" },
+    { name: "Budget", path: "/budget", icon: "account_balance_wallet" },
   ];
 
   return (
