@@ -19,22 +19,22 @@ const createCustomFood = async (req, res) => {
 
 const getSmartRecommendations = async (req, res) => {
   try {
-    // 1. Get the user's profile and goals
-    const user = await User.findById(req.user.id);
+    // 1. Get the user's profile and goals (Using req.user._id is safer for Mongoose)
+    const user = await User.findById(req.user._id);
     if (!user) return res.status(404).json({ message: "User not found" });
 
     // 2. Calculate what they have already spent and eaten today
     const startOfToday = new Date();
     startOfToday.setHours(0, 0, 0, 0);
 
-    // Equivalent to: select * from logs where user_id = ? and date >= today
+    // FIX: Changed 'date' to 'createdAt' to match Mongoose timestamps
     const logs = await Log.find({
-      user: req.user.id,
+      user: req.user._id,
       date: { $gte: startOfToday },
     });
 
-    const spentToday = logs.reduce((sum, log) => sum + log.cost, 0);
-    const eatenToday = logs.reduce((sum, log) => sum + log.calories, 0);
+    const spentToday = logs.reduce((sum, log) => sum + (log.cost || 0), 0);
+    const eatenToday = logs.reduce((sum, log) => sum + (log.calories || 0), 0);
 
     // Fallbacks just in case the user hasn't set their goals yet
     const dailyBudget = user.dailyBudget || 500;

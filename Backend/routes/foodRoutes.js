@@ -7,8 +7,9 @@ const {
 } = require("../controllers/foodController");
 const { protect } = require("../middleware/authMiddleware");
 
-router.get("/", protect, getFoods); // Protected route
-router.post("/custom", protect, createCustomFood);
 router.get("/recommendations", protect, getSmartRecommendations);
+
+router.get("/", protect, getFoods);
+router.post("/custom", protect, createCustomFood);
 
 module.exports = router;
