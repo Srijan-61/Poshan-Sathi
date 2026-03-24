@@ -9,6 +9,12 @@ const foodRoutes = require("./routes/foodRoutes");
 const ingredientRoutes = require("./routes/ingredientRoutes");
 const logRoutes = require("./routes/logRoutes");
 
+
+const profileRoutes = require('./routes/profileRoutes');
+
+
+
+
 const app = express();
 
 // Middleware
@@ -26,6 +32,10 @@ app.use("/api/auth", authRoutes);
 app.use("/api/foods", foodRoutes);
 app.use("/api/ingredients", ingredientRoutes);
 app.use("/api/logs", logRoutes);
+
+
+app.use('/api/profile', profileRoutes);
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

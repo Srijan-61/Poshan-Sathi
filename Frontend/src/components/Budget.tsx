@@ -20,13 +20,17 @@ interface Log {
   date: string;
 }
 
-const Budget: React.FC = () => {
+interface BudgetProps {
+  dailyBudgetGoal: number;
+  monthlyBudgetGoal: number;
+}
+
+const Budget: React.FC<BudgetProps> = ({
+  dailyBudgetGoal,
+  monthlyBudgetGoal,
+}) => {
   const [logs, setLogs] = useState<Log[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  // Default goals
-  const DAILY_BUDGET_GOAL = 500;
-  const MONTHLY_BUDGET_GOAL = 15000;
 
   useEffect(() => {
     const fetchLogs = async () => {
@@ -66,9 +70,9 @@ const Budget: React.FC = () => {
   const todaySpent = dailyLogs.reduce((sum, log) => sum + log.cost, 0);
   const monthSpent = monthlyLogs.reduce((sum, log) => sum + log.cost, 0);
 
-  const dailyPercent = Math.min((todaySpent / DAILY_BUDGET_GOAL) * 100, 100);
+  const dailyPercent = Math.min((todaySpent / Math.max(dailyBudgetGoal, 1)) * 100, 100);
   const monthlyPercent = Math.min(
-    (monthSpent / MONTHLY_BUDGET_GOAL) * 100,
+    (monthSpent / Math.max(monthlyBudgetGoal, 1)) * 100,
     100,
   );
 
@@ -156,7 +160,7 @@ const Budget: React.FC = () => {
               Rs. {todaySpent}
             </h2>
             <span className="text-gray-400 font-medium mb-1">
-              / {DAILY_BUDGET_GOAL}
+              / {dailyBudgetGoal}
             </span>
           </div>
           <div className="w-full bg-gray-100 rounded-full h-3 mt-2 overflow-hidden">
@@ -181,7 +185,7 @@ const Budget: React.FC = () => {
               Rs. {monthSpent}
             </h2>
             <span className="text-gray-400 font-medium mb-1">
-              / {MONTHLY_BUDGET_GOAL}
+              / {monthlyBudgetGoal}
             </span>
           </div>
           <div className="w-full bg-gray-100 rounded-full h-3 mt-2 overflow-hidden">
@@ -227,7 +231,7 @@ const Budget: React.FC = () => {
                   <Cell
                     key={`cell-${index}`}
                     fill={
-                      entry.spent > DAILY_BUDGET_GOAL ? "#EF4444" : "#22C55E"
+                      entry.spent > dailyBudgetGoal ? "#EF4444" : "#22C55E"
                     }
                   />
                 ))}
@@ -238,7 +242,7 @@ const Budget: React.FC = () => {
       </section>
 
       {/* The AI Brain Component */}
-      <SmartSuggestions />
+      {/* <SmartSuggestions /> */}
 
       {/* Expense History */}
       <section className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm">

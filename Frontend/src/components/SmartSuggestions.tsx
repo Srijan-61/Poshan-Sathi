@@ -4,7 +4,7 @@ import axios from "axios";
 interface SuggestionData {
   remainingBudget: number;
   remainingCalories: number;
-  suggestions: any[];
+  insights: any[];
 }
 
 const SmartSuggestions: React.FC = () => {
@@ -38,95 +38,82 @@ const SmartSuggestions: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="bg-green-50 rounded-3xl p-6 border border-green-100 flex items-center justify-center h-40 animate-pulse text-green-600 font-bold">
-        Analyzing your budget & health goals...
+      <div className="text-center p-4 text-gray-500">
+        Analyzing nutrition goals...
       </div>
     );
   }
 
-  if (!data || data.suggestions.length === 0) {
+  // Safety check to prevent white-screen crashes
+  if (!data || !data.insights || data.insights.length === 0) {
     return (
-      <div className="bg-gray-50 rounded-3xl p-6 border border-gray-200 text-center">
+      <div className="bg-gray-50 rounded-2xl p-6 border border-gray-200 text-center">
         <span className="material-symbols-outlined text-gray-400 text-4xl mb-2">
-          account_balance_wallet
+          check_circle
         </span>
-        <h3 className="text-gray-900 font-bold mb-1">Budget Tight!</h3>
+        <h3 className="text-gray-900 font-bold mb-1">Nutrition on Track!</h3>
         <p className="text-gray-500 text-sm">
-          You don't have enough remaining budget or calories for our usual
-          recommendations today.
+          You are hitting your goals perfectly today.
         </p>
       </div>
     );
   }
 
   return (
-    <div className="bg-linear-to-br from-green-50 to-emerald-50 rounded-3xl p-6 md:p-8 border border-green-100 shadow-sm relative overflow-hidden">
-      {/* Background decoration */}
-      <span className="material-symbols-outlined absolute -right-4 -top-4 text-[120px] text-green-500 opacity-5 rotate-12 pointer-events-none">
-        psychology
-      </span>
+    <section className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm flex flex-col gap-4">
+      <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2 mb-2">
+        <span className="material-symbols-outlined text-indigo-500">
+          psychology
+        </span>
+        Smart Recommendations
+      </h3>
 
-      <div className="relative z-10">
-        <div className="flex items-center gap-2 mb-2">
-          <span className="material-symbols-outlined text-green-600">
-            auto_awesome
-          </span>
-          <h3 className="font-bold text-green-800 uppercase tracking-wide text-xs">
-            Smart Companion
-          </h3>
-        </div>
-
-        <h2 className="text-xl md:text-2xl font-extrabold text-gray-900 mb-2 leading-tight">
-          You have{" "}
-          <span className="text-green-600">
-            Rs. {Math.max(0, data.remainingBudget)}
-          </span>{" "}
-          and{" "}
-          <span className="text-orange-500">
-            {Math.max(0, data.remainingCalories)} kcal
-          </span>{" "}
-          left today.
-        </h2>
-        <p className="text-gray-600 text-sm font-medium mb-6">
-          Based on your wallet and health profile, here is what we recommend
-          eating next:
-        </p>
-
-        <div className="flex flex-col gap-4">
-          {data.suggestions.map((food, index) => (
-            <div
-              key={food._id}
-              className="bg-white p-4 rounded-2xl border border-white shadow-sm hover:border-green-300 hover:shadow-md transition-all flex items-center justify-between group"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-full bg-green-100 text-green-700 flex items-center justify-center font-black text-sm">
-                  #{index + 1}
-                </div>
-                <div>
-                  <h4 className="font-bold text-gray-900 text-lg group-hover:text-green-700 transition-colors">
-                    {food.food_name}
-                  </h4>
-                  <div className="flex gap-3 text-xs font-bold mt-1">
-                    <span className="text-green-600">Rs. {food.price}</span>
-                    <span className="text-orange-500">
-                      {food.calories} kcal
-                    </span>
-                    {food.score > 20 && (
-                      <span className="text-blue-500 flex items-center gap-1">
-                        <span className="material-symbols-outlined text-[12px]">
-                          health_and_safety
-                        </span>
-                        Health Match
-                      </span>
-                    )}
-                  </div>
-                </div>
+      <div className="flex flex-col gap-4">
+        {data.insights.map((insight) => (
+          <div
+            key={insight.id}
+            className={`rounded-2xl p-4 border flex flex-col gap-3 ${insight.colorClass}`}
+          >
+            <div className="flex items-start gap-3">
+              <span className="material-symbols-outlined text-2xl">
+                {insight.icon}
+              </span>
+              <div>
+                <h4 className="font-bold text-lg leading-tight">
+                  {insight.title}
+                </h4>
+                <p className="text-sm mt-1 opacity-90 leading-snug">
+                  {insight.message}
+                </p>
               </div>
             </div>
-          ))}
-        </div>
+
+            {insight.suggestions && insight.suggestions.length > 0 && (
+              <div className="flex gap-2 overflow-x-auto pb-1 mt-2 scrollbar-hide">
+                {insight.suggestions.map((food: any) => (
+                  <div
+                    key={food._id}
+                    className="bg-white/80 rounded-xl p-2 min-w-[120px] shadow-sm"
+                  >
+                    <span className="font-bold text-gray-900 text-sm block truncate">
+                      {food.food_name}
+                    </span>
+                    <div className="flex justify-between items-center w-full mt-1">
+                      <span className="text-xs font-bold text-green-700">
+                        Rs. {food.price}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        {food.calories} kcal
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
       </div>
-    </div>
+    </section>
   );
 };
 

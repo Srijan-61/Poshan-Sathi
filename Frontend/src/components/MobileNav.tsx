@@ -4,6 +4,7 @@ import { NavLink } from "react-router-dom";
 const MobileNav: React.FC = () => {
   const navItems = [
     { name: "Home", path: "/", icon: "home" },
+    { name: "Profile", path: "/profile", icon: "person" },
     { name: "Cook", path: "/cook", icon: "restaurant" },
     { name: "Menu", path: "/menu", icon: "menu_book" },
     { name: "Log", path: "/history", icon: "history" },

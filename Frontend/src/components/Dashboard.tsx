@@ -23,23 +23,21 @@ interface Log {
 interface Props {
   logs: Log[];
   budget: number;
+  goals: {
+    calories: number;
+    protein: number;
+    carbs: number;
+    fats: number;
+    iron: number;
+    calcium: number;
+    vitaminC: number;
+    fiber: number;
+    sugar: number;
+    sodium: number;
+  };
 }
 
-// --- STANDARD DAILY GOALS ---
-const GOALS = {
-  calories: 2000,
-  protein: 60,
-  carbs: 275,
-  fats: 70,
-  iron: 15,
-  calcium: 1000,
-  vitaminC: 90,
-  fiber: 30,
-  sugar: 50,
-  sodium: 2300,
-};
-
-const Dashboard: React.FC<Props> = ({ logs, budget }) => {
+const Dashboard: React.FC<Props> = ({ logs, budget, goals }) => {
   // 1. Calculate Totals from Logs
   const totals = logs.reduce(
     (acc, log) => ({
@@ -73,18 +71,18 @@ const Dashboard: React.FC<Props> = ({ logs, budget }) => {
   const remainingBudget = budget - totals.cost;
 
   // Percentages for the progress bars
-  const calPercent = Math.min((totals.calories / GOALS.calories) * 100, 100);
-  const costPercent = Math.min((totals.cost / budget) * 100, 100);
-  const carbPercent = Math.min((totals.carbs / GOALS.carbs) * 100, 100);
-  const proPercent = Math.min((totals.protein / GOALS.protein) * 100, 100);
-  const fatPercent = Math.min((totals.fats / GOALS.fats) * 100, 100);
+  const calPercent = Math.min((totals.calories / Math.max(goals.calories, 1)) * 100, 100);
+  const costPercent = Math.min((totals.cost / Math.max(budget, 1)) * 100, 100);
+  const carbPercent = Math.min((totals.carbs / Math.max(goals.carbs, 1)) * 100, 100);
+  const proPercent = Math.min((totals.protein / Math.max(goals.protein, 1)) * 100, 100);
+  const fatPercent = Math.min((totals.fats / Math.max(goals.fats, 1)) * 100, 100);
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-8 pb-20 md:pb-0">
       {/* Greeting Section */}
       <section className="flex flex-col gap-2 pt-2">
         <h1 className="text-gray-900 text-3xl md:text-4xl font-extrabold leading-tight tracking-tight">
-          Namaste, Srijan! 
+          Namaste, Srijan!
         </h1>
         <p className="text-gray-500 text-lg font-medium">
           Let's hit your health and budget goals today.
@@ -121,7 +119,7 @@ const Dashboard: React.FC<Props> = ({ logs, budget }) => {
                 {Math.round(totals.calories)}
               </p>
               <p className="text-gray-400 text-xl font-medium">
-                / {GOALS.calories} kcal
+                / {goals.calories} kcal
               </p>
             </div>
             <div className="w-full bg-gray-100 rounded-full h-3 mb-2">

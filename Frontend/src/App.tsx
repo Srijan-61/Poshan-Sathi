@@ -14,11 +14,47 @@ import DailyLogs from "./components/DailyLogs";
 import LoginPage from "./components/LoginPage";
 import RegisterPage from "./components/RegisterPage";
 import Budget from "./components/Budget";
+import Profile from "./components/Profile";
+
+interface AnalyticsTargets {
+  dailyBudget: number;
+  monthlyBudget: number;
+  dailyRequirements: {
+    calories: number;
+    protein: number;
+    carbs: number;
+    fats: number;
+    iron: number;
+    calcium: number;
+    vitaminC: number;
+    fiber: number;
+    sugar: number;
+    sodium: number;
+  };
+}
+
+const DEFAULT_TARGETS: AnalyticsTargets = {
+  dailyBudget: 500,
+  monthlyBudget: 15000,
+  dailyRequirements: {
+    calories: 2000,
+    protein: 60,
+    carbs: 275,
+    fats: 70,
+    iron: 15,
+    calcium: 1000,
+    vitaminC: 90,
+    fiber: 30,
+    sugar: 50,
+    sodium: 2300,
+  },
+};
+
 function App() {
   const [user, setUser] = useState<any>(null);
   const [logs, setLogs] = useState<any[]>([]);
   const [foods, setFoods] = useState<any[]>([]);
-  const [budget] = useState<number>(5000); // Set your daily budget here
+  const [targets, setTargets] = useState<AnalyticsTargets>(DEFAULT_TARGETS);
 
   // Check for logged-in user on initial load
   useEffect(() => {
@@ -48,9 +84,32 @@ function App() {
       // Fetch Foods and Logs from the backend
       const fRes = await axios.get("http://localhost:5000/api/foods", config);
       const lRes = await axios.get("http://localhost:5000/api/logs", config);
+      const pRes = await axios.get("http://localhost:5000/api/profile", config);
 
       setFoods(fRes.data);
       setLogs(lRes.data);
+
+      const profile = pRes.data?.profile || {};
+      const reqs = pRes.data?.dailyRequirements || {};
+      const monthlyBudget = Number(profile.monthlyBudget) || DEFAULT_TARGETS.monthlyBudget;
+      const dailyBudget = Math.round(monthlyBudget / 30);
+
+      setTargets({
+        dailyBudget,
+        monthlyBudget,
+        dailyRequirements: {
+          calories: Number(reqs.calories) || DEFAULT_TARGETS.dailyRequirements.calories,
+          protein: Number(reqs.protein) || DEFAULT_TARGETS.dailyRequirements.protein,
+          carbs: Number(reqs.carbs) || DEFAULT_TARGETS.dailyRequirements.carbs,
+          fats: Number(reqs.fats) || DEFAULT_TARGETS.dailyRequirements.fats,
+          iron: Number(reqs.iron) || DEFAULT_TARGETS.dailyRequirements.iron,
+          calcium: Number(reqs.calcium) || DEFAULT_TARGETS.dailyRequirements.calcium,
+          vitaminC: Number(reqs.vitaminC) || DEFAULT_TARGETS.dailyRequirements.vitaminC,
+          fiber: Number(reqs.fiber) || DEFAULT_TARGETS.dailyRequirements.fiber,
+          sugar: Number(reqs.sugar) || DEFAULT_TARGETS.dailyRequirements.sugar,
+          sodium: Number(reqs.sodium) || DEFAULT_TARGETS.dailyRequirements.sodium,
+        },
+      });
     } catch (err: any) {
       console.error(
         "Backend Error fetching data:",
@@ -157,7 +216,11 @@ function App() {
               path="/"
               element={
                 <ProtectedRoute>
-                  <Dashboard logs={logs} budget={budget} />
+                  <Dashboard
+                    logs={logs}
+                    budget={targets.dailyBudget}
+                    goals={targets.dailyRequirements}
+                  />
                 </ProtectedRoute>
               }
             />
@@ -198,7 +261,19 @@ function App() {
               path="/budget"
               element={
                 <ProtectedRoute>
-                  <Budget />
+                  <Budget
+                    dailyBudgetGoal={targets.dailyBudget}
+                    monthlyBudgetGoal={targets.monthlyBudget}
+                  />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
                 </ProtectedRoute>
               }
             />

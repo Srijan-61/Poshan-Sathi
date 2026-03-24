@@ -49,13 +49,16 @@ const DesktopNav: React.FC = () => {
 
       {/* Right: Profile & Actions */}
       <div className="flex items-center gap-4">
-        <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-gray-100 cursor-pointer hover:border-green-500 transition-colors">
+        <Link
+          to="/profile"
+          className="w-10 h-10 rounded-full overflow-hidden border-2 border-gray-100 cursor-pointer hover:border-green-500 transition-colors block"
+        >
           <img
             src="https://ui-avatars.com/api/?name=Srijan+Bhandari&background=f0fdf4&color=15803d"
             alt="Profile"
             className="w-full h-full object-cover"
           />
-        </div>
+        </Link>
       </div>
     </nav>
   );
