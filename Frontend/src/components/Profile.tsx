@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 interface ProfileData {
   name: string;
@@ -44,7 +45,6 @@ const Profile: React.FC = () => {
   );
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [message, setMessage] = useState({ text: "", type: "" });
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -98,7 +98,6 @@ const Profile: React.FC = () => {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
-    setMessage({ text: "", type: "" });
 
     try {
       const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
@@ -111,15 +110,9 @@ const Profile: React.FC = () => {
       );
 
       setRequirements(data.dailyRequirements);
-      setMessage({ text: "Profile updated successfully!", type: "success" });
-
-      // Clear message after 3 seconds
-      setTimeout(() => setMessage({ text: "", type: "" }), 3000);
+      toast.success("Profile updated successfully!");
     } catch (err: any) {
-      setMessage({
-        text: err.response?.data?.message || "Failed to update profile.",
-        type: "error",
-      });
+      toast.error(err.response?.data?.message || "Failed to update profile.");
     } finally {
       setIsSaving(false);
     }
@@ -141,14 +134,6 @@ const Profile: React.FC = () => {
           Update your metrics to recalulate your daily nutrition needs.
         </p>
       </section>
-
-      {message.text && (
-        <div
-          className={`p-4 rounded-xl font-bold text-sm ${message.type === "success" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
-        >
-          {message.text}
-        </div>
-      )}
 
       <form onSubmit={handleSave} className="flex flex-col gap-6">
         {/* Personal Details Card */}

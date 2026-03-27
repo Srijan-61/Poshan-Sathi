@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import axios from "axios";
+import toast, { Toaster } from "react-hot-toast";
 
 // Navigation
 import DesktopNav from "./components/DesktopNav";
@@ -51,18 +52,13 @@ const DEFAULT_TARGETS: AnalyticsTargets = {
 };
 
 function App() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<any>(() => {
+    const savedUser = localStorage.getItem("userInfo");
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
   const [logs, setLogs] = useState<any[]>([]);
   const [foods, setFoods] = useState<any[]>([]);
   const [targets, setTargets] = useState<AnalyticsTargets>(DEFAULT_TARGETS);
-
-  // Check for logged-in user on initial load
-  useEffect(() => {
-    const userInfo = localStorage.getItem("userInfo");
-    if (userInfo) {
-      setUser(JSON.parse(userInfo));
-    }
-  }, []);
 
   // Fetch data ONLY when the user is logged in
   useEffect(() => {
@@ -115,6 +111,7 @@ function App() {
         "Backend Error fetching data:",
         err.response?.data?.message || err.message,
       );
+      toast.error(err.response?.data?.message || "Failed to fetch data");
 
       // If the token is invalid or expired (401 Unauthorized), log the user out
       if (err.response?.status === 401) {
@@ -158,11 +155,13 @@ function App() {
 
       // Refresh the dashboard with the new log (select * from logs)
       fetchData();
+      toast.success("Food logged successfully!");
     } catch (err: any) {
       console.error(
         "Error logging food:",
         err.response?.data?.message || err.message,
       );
+      toast.error(err.response?.data?.message || "Failed to log food");
     }
   };
 
@@ -179,11 +178,13 @@ function App() {
 
       // Refresh the dashboard after deletion
       fetchData();
+      toast.success("Log deleted successfully!");
     } catch (err: any) {
       console.error(
         "Error deleting log:",
         err.response?.data?.message || err.message,
       );
+      toast.error(err.response?.data?.message || "Failed to delete log");
     }
   };
 
@@ -193,8 +194,15 @@ function App() {
     return children;
   };
 
+  // Wrapper to redirect authenticated users away from public routes
+  const PublicRoute = ({ children }: { children: React.ReactElement }) => {
+    if (user) return <Navigate to="/" />;
+    return children;
+  };
+
   return (
     <BrowserRouter>
+      <Toaster position="top-center" />
       {/* Show Desktop Nav only if logged in */}
       {user && <DesktopNav />}
 
@@ -204,11 +212,19 @@ function App() {
             {/* Public Auth Routes */}
             <Route
               path="/login"
-              element={<LoginPage onLogin={(data) => setUser(data)} />}
+              element={
+                <PublicRoute>
+                  <LoginPage onLogin={(data) => setUser(data)} />
+                </PublicRoute>
+              }
             />
             <Route
               path="/register"
-              element={<RegisterPage onLogin={(data) => setUser(data)} />}
+              element={
+                <PublicRoute>
+                  <RegisterPage onLogin={(data) => setUser(data)} />
+                </PublicRoute>
+              }
             />
 
             {/* Protected Routes  */}

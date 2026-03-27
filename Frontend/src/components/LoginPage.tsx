@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
+import toast from "react-hot-toast";
 
 interface Props {
   onLogin: (userData: any) => void;
@@ -9,7 +10,6 @@ interface Props {
 const LoginPage: React.FC<Props> = ({ onLogin }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -17,7 +17,6 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError("");
 
     try {
       // Send login request to the backend
@@ -32,9 +31,10 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
       // Save user info and token to local storage
       localStorage.setItem("userInfo", JSON.stringify(data));
       onLogin(data);
+      toast.success("Login successful!");
       navigate("/"); // Redirect to dashboard
     } catch (err: any) {
-      setError(
+      toast.error(
         err.response?.data?.message ||
           "Login failed. Please check your credentials.",
       );
@@ -81,9 +81,6 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
         {/* Top Navigation: Logo & Language */}
         <header className="w-full flex items-center justify-between px-6 py-6 lg:px-12">
           <div className="flex items-center gap-3 text-[#141414]">
-            <div className="w-8 h-8 flex items-center justify-center bg-[#141414] text-white rounded-lg">
-              <span className="material-symbols-outlined text-[20px]">eco</span>
-            </div>
             <h2 className="text-lg font-bold leading-tight tracking-tight">
               Poshan Sathi
             </h2>
@@ -127,13 +124,6 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
               </p>
             </div>
 
-            {error && (
-              <div className="mb-6 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-2">
-                <span className="material-symbols-outlined text-lg">error</span>
-                {error}
-              </div>
-            )}
-
             {/* Form Inputs */}
             <form onSubmit={handleLogin} className="flex flex-col gap-5">
               {/* Email Field */}
@@ -162,12 +152,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
                   <span className="text-[#141414] text-sm font-bold leading-normal">
                     Password
                   </span>
-                  <a
-                    className="text-sm font-bold text-neutral-500 hover:text-[#141414] transition-colors"
-                    href="#"
-                  >
-                    Forgot Password?
-                  </a>
+                  
                 </div>
                 <div className="flex w-full items-center rounded-xl bg-white border border-[#dbdbdb] focus-within:border-[#141414] focus-within:ring-1 focus-within:ring-[#141414] transition-all overflow-hidden h-14">
                   <div className="flex items-center justify-center pl-4 text-neutral-400">

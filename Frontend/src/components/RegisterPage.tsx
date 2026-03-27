@@ -1,316 +1,418 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate, Link } from "react-router-dom";
+import { toast } from "react-hot-toast";
+import { Link } from "react-router-dom";
 
-interface Props {
-  onLogin: (userData: any) => void;
+interface RegisterPageProps {
+  onLogin: (data: any) => void;
 }
 
-const RegisterPage: React.FC<Props> = ({ onLogin }) => {
-  // 1. CHANGED: name to username
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [healthCondition, setHealthCondition] = useState("");
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
+const RegisterPage: React.FC<RegisterPageProps> = ({ onLogin }) => {
+  const [step, setStep] = useState(1);
+  const [loading, setLoading] = useState(false);
 
-  const [error, setError] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
+  // Form State matching your Mongoose Schema
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    profile: {
+      age: "" as number | "",
+      gender: "male",
+      weight: "" as number | "",
+      height: "" as number | "",
+      activityLevel: "moderatelyActive",
+      dietType: "nonVegetarian",
+      healthGoals: {
+        primaryGoal: "maintainWeight",
+      },
+      healthConditions: ["none"],
+    },
+  });
 
-  const handleRegister = async (e: React.FormEvent) => {
+  // Handlers
+  const handleAccountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleProfileChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
+    const { name, value } = e.target;
+    if (name === "primaryGoal") {
+      setFormData({
+        ...formData,
+        profile: { ...formData.profile, healthGoals: { primaryGoal: value } },
+      });
+    } else {
+      setFormData({
+        ...formData,
+        profile: { ...formData.profile, [name]: value },
+      });
+    }
+  };
+
+  // Validations
+  const nextStep = () => {
+    if (!formData.name || !formData.email || !formData.password) {
+      toast.error("Please fill in all account details");
+      return;
+    }
+    if (formData.password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+    setStep(2);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!agreedToTerms) {
-      setError("You must agree to the Terms of Service.");
+
+    const { age, weight, height } = formData.profile;
+    if (!age || !weight || !height) {
+      toast.error("Health metrics are mandatory for nutrition calculation");
       return;
     }
 
-    setIsLoading(true);
-    setError("");
-
+    setLoading(true);
     try {
-      // 2. CHANGED: Sending username, and mapping healthcondition to lowercase c
       const { data } = await axios.post(
-        "http://localhost:5000/api/auth/register",
-        {
-          username,
-          email,
-          password,
-          healthcondition: healthCondition,
-        },
+        "http://localhost:5000/api/users",
+        formData,
       );
-
-      // Save user info and token to local storage
+      toast.success("Account created! Welcome to Poshan Sathi.");
       localStorage.setItem("userInfo", JSON.stringify(data));
       onLogin(data);
-      navigate("/"); // Redirect to dashboard
     } catch (err: any) {
-      setError(
-        err.response?.data?.message || "Registration failed. Please try again.",
-      );
+      toast.error(err.response?.data?.message || "Registration failed");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen w-full flex-col lg:flex-row bg-[#fcfcfc] text-[#141414] font-sans overflow-x-hidden absolute top-0 left-0 right-0 bottom-0 z-50">
-      {/* Left Column: Visual Hero */}
-      <div className="lg:w-5/12 xl:w-4/12 bg-white border-r border-[#e5e5e5] flex flex-col relative overflow-hidden order-first">
-        <div className="p-8 lg:p-12 flex flex-col h-full z-10">
-          <div className="flex items-center gap-3 mb-10">
-            <div className="w-10 h-10 bg-[#059669] text-white rounded-xl flex items-center justify-center shadow-lg shadow-[#059669]/20">
-              <span className="material-symbols-outlined text-[28px]">eco</span>
+    <main className="flex min-h-screen w-full bg-gray-50 font-sans absolute top-0 left-0 right-0 bottom-0 z-50">
+      {/* Left Panel: Brand & Visuals */}
+      <section className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-black">
+        <div className="absolute inset-0 z-0">
+          <img
+            alt="Healthy food background"
+            className="w-full h-full object-cover"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqfhDAbUmkOI832W5Njglu_x1hiCnkQNdaDm6MAHNvUfstELpYKKddXVKC9DjvW_MXFRlc83g2pJyvmtxPU9bK-xQ48M2vJO_Jh0Th2GsDG9ByKlKe7smClSHnvPDo-3x-mdO-__lndDz7EvZG9XYHtqM4vCzyXHZG6zMggYNdgoVmJ1PGWapxfuoYPG1OJZryuv2bE-qX2wjen-ccgdfc1J_Ddwcc4Cfn7hbocdLKe6jYFhr2m5tacf3T4Ca_ZJUjSjIAXDY1wfw"
+          />
+        </div>
+        <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/10 to-transparent z-10"></div>
+        <div className="relative z-20 flex flex-col justify-between p-12 h-full">
+          <div>
+            <span className="text-2xl font-extrabold tracking-tighter text-white flex items-center">
+              Poshan Sathi
+            </span>
+          </div>
+          <div className="space-y-6">
+            <h1 className="text-4xl xl:text-5xl font-extrabold text-white leading-tight tracking-tight max-w-sm">
+              Nutrition made simple & accessible.
+            </h1>
+            <p className="text-white/70 text-lg max-w-xs leading-relaxed">
+              Precision data meets local Nepali cuisine for your wellness
+              journey.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Right Panel: Form Content */}
+      <section className="w-full lg:w-1/2 flex flex-col bg-white min-h-screen p-6 md:p-12 lg:p-20 overflow-y-auto">
+        <div className="max-w-xl mx-auto w-full flex flex-col flex-grow">
+          {/* Progress Header */}
+          <div className="mb-12">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-xs font-bold uppercase tracking-widest text-gray-400">
+                Step {step} of 2
+              </span>
+              <span className="text-xs font-bold text-green-600">
+                {step === 1 ? "Account Info" : "Health Profile"}
+              </span>
             </div>
-            <h1 className="text-xl font-bold tracking-tight">Poshan Sathi</h1>
+            <div className="w-full h-1 bg-gray-100 rounded-full overflow-hidden">
+              <div
+                className={`h-full bg-green-600 rounded-full transition-all duration-500 ${
+                  step === 1 ? "w-1/2" : "w-full"
+                }`}
+              ></div>
+            </div>
           </div>
 
-          <div className="flex flex-col gap-6 mb-12">
-            <h2 className="text-3xl lg:text-4xl font-extrabold tracking-tight leading-[1.15]">
-              Nutrition made <br />
-              <span className="text-[#059669]">simple & accessible.</span>
+          {/* Form Heading */}
+          <div className="mb-10">
+            <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight mb-3">
+              {step === 1 ? "Create an account" : "Tell us about yourself"}
             </h2>
-            <p className="text-neutral-600 text-lg leading-relaxed max-w-md">
-              Speak your meals, track your health, and get personalized advice
-              designed for everyone.
+            <p className="text-gray-500 leading-relaxed font-medium">
+              {step === 1
+                ? "Join Poshan Sathi to start tracking your health and budget today."
+                : "These metrics are required to accurately calculate your daily calorie and macro goals."}
             </p>
           </div>
 
-          <div className="relative w-full aspect-4/3 rounded-2xl overflow-hidden mb-8 shadow-sm border border-[#e5e5e5] group">
-            <img
-              alt="Fresh healthy vegetables and fruits"
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=80&w=2053&auto=format&fit=crop"
-            />
-            <div className="absolute inset-0 bg-linear-to-t from-black/40 to-transparent"></div>
-            <div className="absolute bottom-4 left-4 text-white font-medium flex items-center gap-2">
-              <span className="material-symbols-outlined">mic</span>
-              <span>Voice-enabled logging</span>
-            </div>
-          </div>
+          {/* Registration Form */}
+          <form onSubmit={handleSubmit} className="flex-grow flex flex-col">
+            {/* STEP 1: ACCOUNT DETAILS */}
+            {step === 1 && (
+              <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-gray-900 uppercase tracking-wider">
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleAccountChange}
+                    className="w-full h-14 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 transition-all outline-none font-medium"
+                    placeholder="Srijan Bhandari"
+                  />
+                </div>
 
-          <div className="grid gap-3 mt-auto">
-            <div className="flex items-start gap-4 p-4 rounded-xl bg-[#e8f0fe]/30 border border-transparent">
-              <span className="material-symbols-outlined text-blue-700">
-                account_balance_wallet
-              </span>
-              <div>
-                <h3 className="font-bold text-sm text-blue-950">
-                  Budget Diets
-                </h3>
-                <p className="text-sm text-blue-800/80">
-                  Affordable meal plans tailored to your wallet.
-                </p>
-              </div>
-            </div>
-            <div className="flex items-start gap-4 p-4 rounded-xl bg-[#fce8e6]/40 border border-transparent">
-              <span className="material-symbols-outlined text-red-700">
-                medical_services
-              </span>
-              <div>
-                <h3 className="font-bold text-sm text-red-950">
-                  Health Alerts
-                </h3>
-                <p className="text-sm text-red-800/80">
-                  Safety warnings for Anemia & Diabetes.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-gray-900 uppercase tracking-wider">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleAccountChange}
+                    className="w-full h-14 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 transition-all outline-none font-medium"
+                    placeholder="srijan@example.com"
+                  />
+                </div>
 
-      {/* Right Column: Registration Form */}
-      <div className="flex-1 flex flex-col relative bg-[#fcfcfc]">
-        {/* Top Right Actions */}
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-gray-900 uppercase tracking-wider">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleAccountChange}
+                    className="w-full h-14 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 transition-all outline-none font-medium"
+                    placeholder="••••••••"
+                  />
+                </div>
 
-        <div className="flex-1 flex items-center justify-center p-6 md:p-12 lg:p-20 overflow-y-auto">
-          <div className="w-full max-w-xl flex flex-col gap-8 mt-12 lg:mt-0">
-            <div className="flex flex-col gap-2 text-center sm:text-left">
-              <h2 className="text-3xl font-bold text-[#141414] tracking-tight">
-                Create your Account
-              </h2>
-              <p className="text-neutral-500">
-                Start your journey to better health today.
-              </p>
-            </div>
-
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-2">
-                <span className="material-symbols-outlined text-lg">error</span>
-                {error}
+                <div className="pt-6">
+                  <button
+                    type="button"
+                    onClick={nextStep}
+                    className="w-full h-14 bg-green-600 text-white font-bold rounded-xl shadow-lg shadow-green-600/20 hover:bg-green-700 transition-all flex items-center justify-center gap-2 group"
+                  >
+                    Continue to Health Profile
+                    <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">
+                      arrow_forward
+                    </span>
+                  </button>
+                  <p className="text-center text-gray-500 font-medium text-sm mt-6">
+                    Already have an account?{" "}
+                    <Link
+                      to="/login"
+                      className="text-green-600 font-bold hover:underline"
+                    >
+                      Log in here
+                    </Link>
+                  </p>
+                </div>
               </div>
             )}
 
-            <form onSubmit={handleRegister} className="flex flex-col gap-5">
-              <div className="grid gap-5">
-                {/* Full Name Field */}
-                <label className="flex flex-col gap-2">
-                  <span className="text-sm font-semibold text-[#141414]">
-                    Full Name
-                  </span>
-                  <div className="relative flex items-center">
+            {/* STEP 2: HEALTH METRICS */}
+            {step === 2 && (
+              <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Age */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-gray-900 uppercase tracking-wider">
+                      Age
+                    </label>
                     <input
-                      required
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      className="w-full h-12 pl-4 pr-12 rounded-lg bg-white border border-[#e5e5e5] focus:border-[#059669] focus:ring-1 focus:ring-[#059669] outline-none transition-all placeholder:text-neutral-400"
-                      placeholder="Enter your full name"
-                      type="text"
+                      type="number"
+                      name="age"
+                      value={formData.profile.age}
+                      onChange={handleProfileChange}
+                      className="w-full h-14 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 transition-all outline-none font-medium"
+                      placeholder="22"
                     />
-                    <div className="absolute right-3 text-neutral-400 pointer-events-none flex items-center">
-                      <span className="material-symbols-outlined">person</span>
+                  </div>
+
+                  {/* Gender (Custom Radio) */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-gray-900 uppercase tracking-wider">
+                      Gender
+                    </label>
+                    <div className="flex gap-2">
+                      <label className="flex-1">
+                        <input
+                          type="radio"
+                          name="gender"
+                          value="male"
+                          checked={formData.profile.gender === "male"}
+                          onChange={handleProfileChange}
+                          className="sr-only peer"
+                        />
+                        <div className="w-full h-14 flex items-center justify-center border border-gray-200 rounded-xl bg-gray-50 peer-checked:bg-green-50 peer-checked:border-green-600 peer-checked:text-green-700 cursor-pointer transition-all text-sm font-bold">
+                          Male
+                        </div>
+                      </label>
+                      <label className="flex-1">
+                        <input
+                          type="radio"
+                          name="gender"
+                          value="female"
+                          checked={formData.profile.gender === "female"}
+                          onChange={handleProfileChange}
+                          className="sr-only peer"
+                        />
+                        <div className="w-full h-14 flex items-center justify-center border border-gray-200 rounded-xl bg-gray-50 peer-checked:bg-green-50 peer-checked:border-green-600 peer-checked:text-green-700 cursor-pointer transition-all text-sm font-bold">
+                          Female
+                        </div>
+                      </label>
                     </div>
                   </div>
-                </label>
 
-                {/* Email Field */}
-                <label className="flex flex-col gap-2">
-                  <span className="text-sm font-semibold text-[#141414]">
-                    Email Address
-                  </span>
-                  <div className="relative flex items-center">
-                    <input
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full h-12 pl-4 pr-12 rounded-lg bg-white border border-[#e5e5e5] focus:border-[#059669] focus:ring-1 focus:ring-[#059669] outline-none transition-all placeholder:text-neutral-400"
-                      placeholder="name@example.com"
-                      type="email"
-                    />
-                    <div className="absolute right-3 text-neutral-400 pointer-events-none flex items-center">
-                      <span className="material-symbols-outlined">mail</span>
-                    </div>
-                  </div>
-                </label>
-              </div>
-
-              {/* Password Field */}
-              <label className="flex flex-col gap-2">
-                <span className="text-sm font-semibold text-[#141414]">
-                  Password
-                </span>
-                <div className="relative flex items-center">
-                  <input
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full h-12 pl-4 pr-12 rounded-lg bg-white border border-[#e5e5e5] focus:border-[#059669] focus:ring-1 focus:ring-[#059669] outline-none transition-all placeholder:text-neutral-400"
-                    placeholder="Create a strong password"
-                    type={showPassword ? "text" : "password"}
-                  />
-                  <button
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 text-neutral-400 hover:text-[#059669] transition-colors flex items-center"
-                    type="button"
-                  >
-                    <span className="material-symbols-outlined">
-                      {showPassword ? "visibility_off" : "visibility"}
-                    </span>
-                  </button>
-                </div>
-              </label>
-
-              {/* Health Condition Dropdown */}
-              <label className="flex flex-col gap-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold text-[#141414]">
-                    Health Condition (Optional)
-                  </span>
-                </div>
-                <div className="relative flex items-center">
-                  <select
-                    value={healthCondition}
-                    onChange={(e) => setHealthCondition(e.target.value)}
-                    className="w-full h-12 pl-4 pr-12 rounded-lg bg-white border border-[#e5e5e5] focus:border-[#059669] focus:ring-1 focus:ring-[#059669] outline-none transition-all text-neutral-600 appearance-none cursor-pointer"
-                  >
-                    <option value="none">None</option>
-                    <option value="anemia">Anemia (Iron Deficiency)</option>
-                    <option value="diabetes">Diabetes (Blood Sugar)</option>
-                  </select>
-                  <div className="absolute right-3 text-neutral-400 pointer-events-none flex items-center">
-                    <span className="material-symbols-outlined">
-                      expand_more
-                    </span>
-                  </div>
-                </div>
-              </label>
-
-              {/* Terms Checkbox */}
-              <label className="flex items-start gap-3 mt-2 cursor-pointer">
-                <input
-                  checked={agreedToTerms}
-                  onChange={(e) => setAgreedToTerms(e.target.checked)}
-                  className="mt-1 rounded border-[#e5e5e5] bg-white text-[#059669] focus:ring-[#059669]"
-                  type="checkbox"
-                />
-                <span className="text-sm text-neutral-600 leading-normal">
-                  I agree to Poshan Sathi's{" "}
-                  <a
-                    className="font-bold text-[#059669] hover:text-[#047857] underline decoration-2 underline-offset-2"
-                    href="#"
-                  >
-                    Terms of Service
-                  </a>{" "}
-                  and{" "}
-                  <a
-                    className="font-bold text-[#059669] hover:text-[#047857] underline decoration-2 underline-offset-2"
-                    href="#"
-                  >
-                    Privacy Policy
-                  </a>
-                  .
-                </span>
-              </label>
-
-              <div className="flex flex-col gap-4 mt-2">
-                <button
-                  disabled={isLoading}
-                  className="w-full h-12 bg-[#059669] hover:bg-[#047857] text-white rounded-lg font-bold text-base transition-colors flex items-center justify-center gap-2 shadow-lg shadow-[#059669]/20 disabled:opacity-70"
-                  type="submit"
-                >
-                  {isLoading ? (
-                    <span>Registering...</span>
-                  ) : (
-                    <>
-                      <span>Register Now</span>
-                      <span className="material-symbols-outlined text-[20px]">
-                        arrow_forward
+                  {/* Weight */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-gray-900 uppercase tracking-wider">
+                      Weight (kg)
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        name="weight"
+                        value={formData.profile.weight}
+                        onChange={handleProfileChange}
+                        className="w-full h-14 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 transition-all outline-none font-medium"
+                        placeholder="70"
+                      />
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-bold">
+                        kg
                       </span>
-                    </>
-                  )}
-                </button>
-                <p className="text-center text-sm text-neutral-600">
-                  Already have an account?{" "}
-                  <Link
-                    to="/login"
-                    className="font-bold text-[#059669] hover:text-[#047857] hover:underline"
-                  >
-                    Log in here
-                  </Link>
-                </p>
-              </div>
-            </form>
+                    </div>
+                  </div>
 
-            <div className="flex items-center justify-center gap-6 mt-4 pt-6 border-t border-dashed border-[#e5e5e5] opacity-70">
-              <div className="flex items-center gap-2 text-xs font-medium text-neutral-500">
-                <span className="material-symbols-outlined text-[18px]">
-                  verified_user
-                </span>
-                <span>Secure Data</span>
+                  {/* Height */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-gray-900 uppercase tracking-wider">
+                      Height (cm)
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        name="height"
+                        value={formData.profile.height}
+                        onChange={handleProfileChange}
+                        className="w-full h-14 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 transition-all outline-none font-medium"
+                        placeholder="175"
+                      />
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-bold">
+                        cm
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Activity Level */}
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-gray-900 uppercase tracking-wider">
+                    Activity Level
+                  </label>
+                  <div className="relative">
+                    <select
+                      name="activityLevel"
+                      value={formData.profile.activityLevel}
+                      onChange={handleProfileChange}
+                      className="w-full h-14 px-4 bg-gray-50 border border-gray-200 rounded-xl appearance-none focus:ring-2 focus:ring-green-500/20 focus:border-green-600 transition-all outline-none font-medium text-gray-900"
+                    >
+                      <option value="sedentary">
+                        Sedentary (Office job, no exercise)
+                      </option>
+                      <option value="lightlyActive">
+                        Lightly Active (1-3 days/week)
+                      </option>
+                      <option value="moderatelyActive">
+                        Moderately Active (3-5 days/week)
+                      </option>
+                      <option value="veryActive">
+                        Very Active (6-7 days/week)
+                      </option>
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                      <span className="material-symbols-outlined text-gray-400">
+                        expand_more
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Health Goal */}
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-gray-900 uppercase tracking-wider">
+                    Primary Health Goal
+                  </label>
+                  <div className="relative">
+                    <select
+                      name="primaryGoal"
+                      value={formData.profile.healthGoals.primaryGoal}
+                      onChange={handleProfileChange}
+                      className="w-full h-14 px-4 bg-gray-50 border border-gray-200 rounded-xl appearance-none focus:ring-2 focus:ring-green-500/20 focus:border-green-600 transition-all outline-none font-medium text-gray-900"
+                    >
+                      <option value="weightLoss">Weight Loss</option>
+                      <option value="maintainWeight">Maintain Weight</option>
+                      <option value="muscleGain">Muscle Gain</option>
+                      <option value="weightGain">Weight Gain</option>
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                      <span className="material-symbols-outlined text-gray-400">
+                        expand_more
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="pt-6 space-y-4">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full h-14 bg-green-600 text-white font-bold rounded-xl shadow-lg shadow-green-600/20 hover:bg-green-700 disabled:opacity-50 transition-all flex items-center justify-center gap-2 group"
+                  >
+                    {loading
+                      ? "Calculating Profile..."
+                      : "Complete Registration"}
+                    {!loading && (
+                      <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">
+                        check_circle
+                      </span>
+                    )}
+                  </button>
+                  <div className="flex items-center justify-center">
+                    <button
+                      type="button"
+                      onClick={() => setStep(1)}
+                      className="inline-flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-green-600 transition-colors group"
+                    >
+                      <span className="material-symbols-outlined text-sm group-hover:-translate-x-1 transition-transform">
+                        arrow_back
+                      </span>
+                      Back to account details
+                    </button>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center gap-2 text-xs font-medium text-neutral-500">
-                <span className="material-symbols-outlined text-[18px]">
-                  health_and_safety
-                </span>
-                <span>Verified Advice</span>
-              </div>
-            </div>
-          </div>
+            )}
+          </form>
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 };
 
