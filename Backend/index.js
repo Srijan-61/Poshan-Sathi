@@ -18,8 +18,13 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: ["http://localhost:5173", "https://poshan-sathi-backend.onrender.com"], 
-  credentials: true
+  origin: [
+    "http://localhost:5173",
+    "https://poshan-sathi.vercel.app" 
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
 app.use(express.json());
 
