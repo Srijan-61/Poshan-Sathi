@@ -10,7 +10,7 @@ const ingredientRoutes = require("./routes/ingredientRoutes");
 const logRoutes = require("./routes/logRoutes");
 const profileRoutes = require('./routes/profileRoutes');
 const adminRoutes = require('./routes/adminRoutes');
-
+const globalErrorHandler = require('./middleware/errorMiddleware');
 
 
 
@@ -34,6 +34,8 @@ app.use("/api/logs", logRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/admin', adminRoutes);
 
+// Global Error Handling Middleware
+app.use(globalErrorHandler);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

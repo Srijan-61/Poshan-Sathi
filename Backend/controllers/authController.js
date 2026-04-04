@@ -1,80 +1,92 @@
 const User = require('../models/User');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
+const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/AppError');
 
-// Generate JWT Token
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
-};
-
-// Register User
-const registerUser = async (req, res) => {
+/**
+ * @desc    Register a new user
+ * @route   POST /api/auth/register
+ * @access  Public
+ */
+const registerUser = catchAsync(async (req, res, next) => {
   const { name, email, password, profile } = req.body;
 
-  try {
-    // 1. Check if all fields are provided
-    if (!name || !email || !password || !profile) {
-      return res.status(400).json({ message: 'Please add all fields' });
-    }
+  // 1. Validate required fields
+  if (!name || !email || !password || !profile) {
+    return next(new AppError('Please add all fields', 400));
+  }
 
-    // 2. Check if user already exists
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-      return res.status(400).json({ message: 'User already exists with that email' });
-    }
+  // 2. Check if user already exists in the database
+  const userExists = await User.findOne({ email });
+  if (userExists) {
+    return next(new AppError('User already exists with that email', 400));
+  }
 
-    // 3. Create the user
-    // The schema expects profile fields. Ensure name is placed inside profile.
-    const userProfile = {
-      ...profile,
-      name // ensure name is saved under user.profile.name
-    };
+  // 3. Mount the user's name securely into their profile object
+  const userProfile = {
+    ...profile,
+    name
+  };
 
-    const user = await User.create({ 
-      email, 
-      password, 
-      profile: userProfile 
-    });
+  // 4. Create the new user in the database
+  const user = await User.create({ 
+    email, 
+    password, 
+    profile: userProfile 
+  });
 
-    if (user) {
-      res.status(201).json({
+  if (!user) {
+    return next(new AppError('Invalid user data received', 400));
+  }
+
+  // 5. Send Success Response with JWT Token
+  res.status(201).json({
+    success: true,
+    data: {
+      user: {
         _id: user.id, 
         name: user.profile?.name, 
         email: user.email, 
-        role: user.role,
-        token: generateToken(user._id)
-      });
-    } else {
-      res.status(400).json({ message: 'Invalid user data received' });
+        role: user.role
+      },
+      token: user.generateAuthToken()
     }
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+  });
+});
 
-// Login User
-const loginUser = async (req, res) => {
+/**
+ * @desc    Log in an existing user
+ * @route   POST /api/auth/login
+ * @access  Public
+ */
+const loginUser = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
-  try {
-    // 1. Find user by email
-    const user = await User.findOne({ email });
+  // 1. Validate missing fields
+  if (!email || !password) {
+    return next(new AppError('Please provide both email and password', 400));
+  }
 
-    // 2. Check password
-    if (user && (await bcrypt.compare(password, user.password))) {
-      res.json({
+  // 2. Query database for user (Notice: .select('+password') exposes the hidden string)
+  const user = await User.findOne({ email }).select('+password');
+
+  // 3. Verify user exists AND entered password matches the database hash
+  if (!user || !(await user.matchPassword(password))) {
+    return next(new AppError('Invalid email or password', 401));
+  }
+
+  // 4. Send Success Response with JWT Token
+  res.status(200).json({
+    success: true,
+    data: {
+      user: {
         _id: user.id, 
         name: user.profile?.name, 
         email: user.email, 
-        role: user.role,
-        token: generateToken(user._id)
-      });
-    } else {
-      res.status(401).json({ message: 'Invalid email or password' });
+        role: user.role
+      },
+      token: user.generateAuthToken()
     }
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+  });
+});
 
 module.exports = { registerUser, loginUser };
