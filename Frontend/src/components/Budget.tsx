@@ -41,10 +41,7 @@ const Budget: React.FC<BudgetProps> = ({
         const config = {
           headers: { Authorization: `Bearer ${userInfo.token}` },
         };
-        const { data } = await axios.get(
-          "http://localhost:5000/api/logs",
-          config,
-        );
+        const { data } = await axios.get("/api/logs", config);
         setLogs(data);
       } catch (err) {
         console.error("Failed to fetch logs", err);
@@ -70,7 +67,10 @@ const Budget: React.FC<BudgetProps> = ({
   const todaySpent = dailyLogs.reduce((sum, log) => sum + log.cost, 0);
   const monthSpent = monthlyLogs.reduce((sum, log) => sum + log.cost, 0);
 
-  const dailyPercent = Math.min((todaySpent / Math.max(dailyBudgetGoal, 1)) * 100, 100);
+  const dailyPercent = Math.min(
+    (todaySpent / Math.max(dailyBudgetGoal, 1)) * 100,
+    100,
+  );
   const monthlyPercent = Math.min(
     (monthSpent / Math.max(monthlyBudgetGoal, 1)) * 100,
     100,
@@ -230,9 +230,7 @@ const Budget: React.FC<BudgetProps> = ({
                 {last7DaysData.map((entry, index) => (
                   <Cell
                     key={`cell-${index}`}
-                    fill={
-                      entry.spent > dailyBudgetGoal ? "#EF4444" : "#22C55E"
-                    }
+                    fill={entry.spent > dailyBudgetGoal ? "#EF4444" : "#22C55E"}
                   />
                 ))}
               </Bar>

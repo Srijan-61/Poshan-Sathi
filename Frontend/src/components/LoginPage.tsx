@@ -20,13 +20,10 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
 
     try {
       // Send login request to the backend
-      const { data } = await axios.post(
-        "http://localhost:5000/api/auth/login",
-        {
-          email,
-          password,
-        },
-      );
+      const { data } = await axios.post("/api/auth/login", {
+        email,
+        password,
+      });
 
       // Save user info and token to local storage
       localStorage.setItem("userInfo", JSON.stringify(data));
@@ -152,7 +149,6 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
                   <span className="text-[#141414] text-sm font-bold leading-normal">
                     Password
                   </span>
-                  
                 </div>
                 <div className="flex w-full items-center rounded-xl bg-white border border-[#dbdbdb] focus-within:border-[#141414] focus-within:ring-1 focus-within:ring-[#141414] transition-all overflow-hidden h-14">
                   <div className="flex items-center justify-center pl-4 text-neutral-400">

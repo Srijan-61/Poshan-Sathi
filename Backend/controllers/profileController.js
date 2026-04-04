@@ -609,3 +609,54 @@ exports.recalculateRequirements = async (req, res) => {
     });
   }
 };
+
+/**
+ * @desc    Upload profile image
+ * @route   PUT /api/profile/upload-image
+ * @access  Private
+ */
+const { deleteCloudinaryImage } = require('../utils/cloudinaryUtils');
+
+exports.uploadProfileImage = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please upload an image'
+      });
+    }
+
+    const userId = req.user.id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Cloudinary Cleanup: Delete old profile image if it exists
+    if (user.profile.profileImage) {
+      await deleteCloudinaryImage(user.profile.profileImage);
+    }
+
+    // Update with new image URL
+    user.profile.profileImage = req.file.path || req.file.secure_url;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Profile image updated successfully',
+      profileImage: user.profile.profileImage
+    });
+
+  } catch (error) {
+    console.error('Error uploading profile image:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to upload profile image',
+      error: error.message
+    });
+  }
+};

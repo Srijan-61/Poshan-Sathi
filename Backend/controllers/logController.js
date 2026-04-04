@@ -5,7 +5,10 @@ const getLogs = async (req, res) => {
   const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);
 
-  const logs = await Log.find({ date: { $gte: startOfDay } }).sort({
+  const logs = await Log.find({ 
+    user: req.user._id,
+    date: { $gte: startOfDay } 
+  }).sort({
     date: -1,
   });
   res.json(logs);
@@ -15,6 +18,7 @@ const createLog = async (req, res) => {
   try {
     
     const newLog = new Log({
+      user: req.user._id,
       food_name: req.body.food_name,
       quantity: req.body.quantity,
       calories: req.body.calories,
@@ -33,7 +37,15 @@ const createLog = async (req, res) => {
 };
 
 const deleteLog = async (req, res) => {
-  await Log.findByIdAndDelete(req.params.id);
+  const deletedLog = await Log.findOneAndDelete({ 
+    _id: req.params.id, 
+    user: req.user._id 
+  });
+  
+  if (!deletedLog) {
+    return res.status(404).json({ message: "Log not found or unauthorized to delete" });
+  }
+
   res.json({ message: "Deleted" });
 };
 

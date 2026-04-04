@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
+import { AnimatePresence } from "framer-motion";
+import SplashScreen from "./components/SplashScreen";
 
 // Navigation
 import DesktopNav from "./components/DesktopNav";
@@ -16,6 +18,7 @@ import LoginPage from "./components/LoginPage";
 import RegisterPage from "./components/RegisterPage";
 import Budget from "./components/Budget";
 import Profile from "./components/Profile";
+import AdminDashboard from "./components/AdminDashboard";
 
 interface AnalyticsTargets {
   dailyBudget: number;
@@ -52,6 +55,17 @@ const DEFAULT_TARGETS: AnalyticsTargets = {
 };
 
 function App() {
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    // Hide the splash screen after 3 seconds
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   const [user, setUser] = useState<any>(() => {
     const savedUser = localStorage.getItem("userInfo");
     return savedUser ? JSON.parse(savedUser) : null;
@@ -78,32 +92,38 @@ function App() {
       };
 
       // Fetch Foods and Logs from the backend
-      const fRes = await axios.get("http://localhost:5000/api/foods", config);
-      const lRes = await axios.get("http://localhost:5000/api/logs", config);
-      const pRes = await axios.get("http://localhost:5000/api/profile", config);
+      const fRes = await axios.get("/api/foods", config);
+      const lRes = await axios.get("/api/logs", config);
+      const pRes = await axios.get("/api/profile", config);
 
       setFoods(fRes.data);
       setLogs(lRes.data);
 
       const profile = pRes.data?.profile || {};
       const reqs = pRes.data?.dailyRequirements || {};
-      const monthlyBudget = Number(profile.monthlyBudget) || DEFAULT_TARGETS.monthlyBudget;
+      const monthlyBudget =
+        Number(profile.monthlyBudget) || DEFAULT_TARGETS.monthlyBudget;
       const dailyBudget = Math.round(monthlyBudget / 30);
 
       setTargets({
         dailyBudget,
         monthlyBudget,
         dailyRequirements: {
-          calories: Number(reqs.calories) || DEFAULT_TARGETS.dailyRequirements.calories,
-          protein: Number(reqs.protein) || DEFAULT_TARGETS.dailyRequirements.protein,
+          calories:
+            Number(reqs.calories) || DEFAULT_TARGETS.dailyRequirements.calories,
+          protein:
+            Number(reqs.protein) || DEFAULT_TARGETS.dailyRequirements.protein,
           carbs: Number(reqs.carbs) || DEFAULT_TARGETS.dailyRequirements.carbs,
           fats: Number(reqs.fats) || DEFAULT_TARGETS.dailyRequirements.fats,
           iron: Number(reqs.iron) || DEFAULT_TARGETS.dailyRequirements.iron,
-          calcium: Number(reqs.calcium) || DEFAULT_TARGETS.dailyRequirements.calcium,
-          vitaminC: Number(reqs.vitaminC) || DEFAULT_TARGETS.dailyRequirements.vitaminC,
+          calcium:
+            Number(reqs.calcium) || DEFAULT_TARGETS.dailyRequirements.calcium,
+          vitaminC:
+            Number(reqs.vitaminC) || DEFAULT_TARGETS.dailyRequirements.vitaminC,
           fiber: Number(reqs.fiber) || DEFAULT_TARGETS.dailyRequirements.fiber,
           sugar: Number(reqs.sugar) || DEFAULT_TARGETS.dailyRequirements.sugar,
-          sodium: Number(reqs.sodium) || DEFAULT_TARGETS.dailyRequirements.sodium,
+          sodium:
+            Number(reqs.sodium) || DEFAULT_TARGETS.dailyRequirements.sodium,
         },
       });
     } catch (err: any) {
@@ -131,7 +151,7 @@ function App() {
       };
 
       await axios.post(
-        "http://localhost:5000/api/logs",
+        "/api/logs",
         {
           food_name: food.food_name,
           quantity: qty,
@@ -174,7 +194,7 @@ function App() {
         },
       };
 
-      await axios.delete(`http://localhost:5000/api/logs/${id}`, config);
+      await axios.delete(`/api/logs/${id}`, config);
 
       // Refresh the dashboard after deletion
       fetchData();
@@ -191,22 +211,37 @@ function App() {
   // Wrapper to protect routes from unauthenticated users
   const ProtectedRoute = ({ children }: { children: React.ReactElement }) => {
     if (!user) return <Navigate to="/login" />;
+    if (user.role === 'admin') return <Navigate to="/admin" />;
     return children;
   };
 
   // Wrapper to redirect authenticated users away from public routes
   const PublicRoute = ({ children }: { children: React.ReactElement }) => {
-    if (user) return <Navigate to="/" />;
+    if (user) {
+      if (user.role === 'admin') return <Navigate to="/admin" />;
+      return <Navigate to="/" />;
+    }
+    return children;
+  };
+
+  // Wrapper for Admin-only routes
+  const AdminRoute = ({ children }: { children: React.ReactElement }) => {
+    if (!user || user.role !== 'admin') return <Navigate to="/" />;
     return children;
   };
 
   return (
     <BrowserRouter>
-      <Toaster position="top-center" />
-      {/* Show Desktop Nav only if logged in */}
-      {user && <DesktopNav />}
+      <AnimatePresence>
+        {showSplash && <SplashScreen key="splash" />}
+      </AnimatePresence>
 
-      <div className={`min-h-screen bg-gray-50 ${user ? "pb-20 md:pb-0" : ""}`}>
+      <div className={showSplash ? "hidden" : "block"}>
+        <Toaster position="top-center" />
+        {/* Show Desktop Nav only if logged in */}
+        {user && <DesktopNav />}
+
+        <div className={`min-h-screen bg-gray-50 ${user ? "pb-20 md:pb-0" : ""}`}>
         <div className="max-w-4xl mx-auto p-4 md:p-8">
           <Routes>
             {/* Public Auth Routes */}
@@ -293,6 +328,15 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
+            <Route
+              path="/admin"
+              element={
+                <AdminRoute>
+                  <AdminDashboard />
+                </AdminRoute>
+              }
+            />
           </Routes>
         </div>
 
@@ -302,6 +346,7 @@ function App() {
             <MobileNav />
           </div>
         )}
+        </div>
       </div>
     </BrowserRouter>
   );

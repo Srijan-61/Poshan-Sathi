@@ -9,11 +9,11 @@ const generateToken = (id) => {
 
 // Register User
 const registerUser = async (req, res) => {
-  const { username, email, password, healthcondition } = req.body;
+  const { name, email, password, profile } = req.body;
 
   try {
     // 1. Check if all fields are provided
-    if (!username || !email || !password || !healthcondition) {
+    if (!name || !email || !password || !profile) {
       return res.status(400).json({ message: 'Please add all fields' });
     }
 
@@ -24,19 +24,24 @@ const registerUser = async (req, res) => {
     }
 
     // 3. Create the user
+    // The schema expects profile fields. Ensure name is placed inside profile.
+    const userProfile = {
+      ...profile,
+      name // ensure name is saved under user.profile.name
+    };
+
     const user = await User.create({ 
-      username, 
       email, 
       password, 
-      healthcondition 
+      profile: userProfile 
     });
 
     if (user) {
       res.status(201).json({
         _id: user.id, 
-        username: user.username, 
+        name: user.profile?.name, 
         email: user.email, 
-        healthcondition: user.healthcondition,
+        role: user.role,
         token: generateToken(user._id)
       });
     } else {
@@ -59,9 +64,9 @@ const loginUser = async (req, res) => {
     if (user && (await bcrypt.compare(password, user.password))) {
       res.json({
         _id: user.id, 
-        username: user.username, 
+        name: user.profile?.name, 
         email: user.email, 
-        healthcondition: user.healthcondition,
+        role: user.role,
         token: generateToken(user._id)
       });
     } else {

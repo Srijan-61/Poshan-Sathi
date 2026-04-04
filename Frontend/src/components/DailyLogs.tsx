@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 // --- TYPES ---
@@ -7,6 +8,7 @@ interface Food {
   food_name: string;
   calories: number;
   price: number;
+  image?: string;
 }
 
 interface Log {
@@ -16,6 +18,7 @@ interface Log {
   cost: number;
   quantity: number;
   createdAt?: string;
+  date?: string;
 }
 
 interface Props {
@@ -98,7 +101,7 @@ const DailyLogs: React.FC<Props> = ({ logs, foods, onLog, onDelete }) => {
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition)
-      return alert(
+      return toast.error(
         "Your browser doesn't support speech recognition. Please use Chrome.",
       );
 
@@ -163,7 +166,7 @@ const DailyLogs: React.FC<Props> = ({ logs, foods, onLog, onDelete }) => {
     });
 
     // 3. INTELLIGENT MATCHING ENGINE
-    let bestMatch: Food | null = null;
+    let bestMatch: any = null;
     let bestScore = -1;
 
     // Safety check in case foods haven't loaded
@@ -204,24 +207,34 @@ const DailyLogs: React.FC<Props> = ({ logs, foods, onLog, onDelete }) => {
     }
   };
 
-  const quickAddItems = [
-    {
-      name: "Dal Bhat",
-      img: "https://ui-avatars.com/api/?name=Dal+Bhat&background=f0fdf4&color=15803d",
-    },
-    {
-      name: "Roti",
-      img: "https://ui-avatars.com/api/?name=Roti&background=fffbeb&color=b45309",
-    },
-    {
-      name: "Apple",
-      img: "https://ui-avatars.com/api/?name=Apple&background=fef2f2&color=b91c1c",
-    },
-    {
-      name: "Water",
-      img: "https://ui-avatars.com/api/?name=Water&background=eff6ff&color=1d4ed8",
-    },
-  ];
+  const getFoodImage = (name: string) => {
+    const matched = foods.find((f) => f.food_name === name);
+    return matched?.image;
+  };
+
+  // --- DYNAMIC QUICK ADD ---
+  // Get recent unique foods from logs
+  const recentFoods = logs
+    .sort((a, b) => new Date(b.date || b.createdAt || 0).getTime() - new Date(a.date || a.createdAt || 0).getTime())
+    .map((log) => log.food_name)
+    .filter((value, index, self) => self.indexOf(value) === index)
+    .slice(0, 6);
+
+  let quickAddItems = recentFoods.map((name) => {
+    const img = getFoodImage(name);
+    return {
+      name,
+      img: img || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=f0fdf4&color=15803d`,
+    };
+  });
+
+  // Fallback to top global foods if no logs exist
+  if (quickAddItems.length === 0) {
+    quickAddItems = foods.slice(0, 6).map((f) => ({
+      name: f.food_name,
+      img: f.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(f.food_name)}&background=f0fdf4&color=15803d`,
+    }));
+  }
 
   return (
     <div className="flex flex-col items-center pb-20 md:pb-0">
@@ -304,13 +317,22 @@ const DailyLogs: React.FC<Props> = ({ logs, foods, onLog, onDelete }) => {
                             setIsDropdownOpen(false);
                           }}
                         >
-                          <div className="flex flex-col">
-                            <span className="font-bold text-gray-900">
-                              {food.food_name}
-                            </span>
-                            <span className="text-sm text-gray-500">
-                              {food.calories} kcal • Rs. {food.price}
-                            </span>
+                          <div className="flex items-center gap-3">
+                            {food.image ? (
+                              <img src={food.image} className="w-10 h-10 rounded-full object-cover border border-gray-100" alt={food.food_name} />
+                            ) : (
+                              <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500">
+                                <span className="material-symbols-outlined text-sm">local_dining</span>
+                              </div>
+                            )}
+                            <div className="flex flex-col">
+                              <span className="font-bold text-gray-900">
+                                {food.food_name}
+                              </span>
+                              <span className="text-sm text-gray-500">
+                                {food.calories} kcal • Rs. {food.price}
+                              </span>
+                            </div>
                           </div>
                           <button className="w-8 h-8 rounded-full bg-green-50 text-green-600 flex items-center justify-center hover:bg-green-600 hover:text-white transition-colors">
                             <span className="material-symbols-outlined text-sm">
@@ -352,7 +374,7 @@ const DailyLogs: React.FC<Props> = ({ logs, foods, onLog, onDelete }) => {
                   );
                   if (foundFood) onLog(foundFood, 1);
                   else
-                    alert(
+                    toast.error(
                       `${item.name} not found in database. Add it via Cook tab first!`,
                     );
                 }}
@@ -403,11 +425,15 @@ const DailyLogs: React.FC<Props> = ({ logs, foods, onLog, onDelete }) => {
                 >
                   <div className="z-10 shrink-0 mx-auto md:mx-0">
                     <div className="w-20 h-20 md:w-[6.5rem] md:h-[6.5rem] rounded-full p-1 bg-white border border-gray-200 shadow-sm flex items-center justify-center">
-                      <div className="w-full h-full rounded-full bg-green-50 flex items-center justify-center text-green-600">
-                        <span className="material-symbols-outlined text-4xl">
-                          set_meal
-                        </span>
-                      </div>
+                      {getFoodImage(log.food_name) ? (
+                        <img src={getFoodImage(log.food_name)} className="w-full h-full rounded-full object-cover" alt={log.food_name} />
+                      ) : (
+                        <div className="w-full h-full rounded-full bg-green-50 flex items-center justify-center text-green-600">
+                          <span className="material-symbols-outlined text-4xl">
+                            set_meal
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -421,7 +447,7 @@ const DailyLogs: React.FC<Props> = ({ logs, foods, onLog, onDelete }) => {
                           Qty: {log.quantity}
                         </span>
                         <span className="text-gray-400 font-medium">
-                          • {formatTime(log.createdAt)}
+                          • {formatTime(log.date || log.createdAt)}
                         </span>
                       </div>
                     </div>

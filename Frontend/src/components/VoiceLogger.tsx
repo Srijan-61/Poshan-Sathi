@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import toast from "react-hot-toast";
 
 // --- TYPES ---
 interface Food {
@@ -48,7 +49,7 @@ const VoiceLogger: React.FC<Props> = ({ foodLibrary, onLog }) => {
   const startListening = () => {
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) return alert("Use Chrome browser.");
+    if (!SpeechRecognition) return toast.error("Use Chrome browser.");
 
     const recognition = new SpeechRecognition();
     recognition.lang = "en-US";
@@ -115,7 +116,7 @@ const VoiceLogger: React.FC<Props> = ({ foodLibrary, onLog }) => {
     });
 
     // 3. INTELLIGENT MATCHING ENGINE
-    let bestMatch: Food | null = null;
+    let bestMatch: any = null;
     let bestScore = -1;
 
     foodLibrary.forEach((food) => {

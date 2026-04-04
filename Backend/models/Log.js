@@ -1,6 +1,11 @@
 const mongoose = require("mongoose");
 
 const logSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
   food_name: String,
   quantity: Number,
   calories: Number,

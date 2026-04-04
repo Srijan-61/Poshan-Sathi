@@ -14,8 +14,10 @@ const {
   updateActivityLevel,
   updateBudget,
   getDailyRequirements,
-  recalculateRequirements
+  recalculateRequirements,
+  uploadProfileImage
 } = require('../controllers/profileController');
+const upload = require('../middleware/uploadMiddleware');
 
 // @route   GET /api/profile
 // @desc    Get user profile
@@ -71,5 +73,10 @@ router.get('/daily-requirements', protect, getDailyRequirements);
 // @desc    Recalculate daily requirements
 // @access  Private
 router.post('/recalculate', protect, recalculateRequirements);
+
+// @route   PUT /api/profile/upload-image
+// @desc    Upload profile image
+// @access  Private
+router.put('/upload-image', protect, upload.single('image'), uploadProfileImage);
 
 module.exports = router;

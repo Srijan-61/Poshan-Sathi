@@ -2,7 +2,10 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 
 const MobileNav: React.FC = () => {
-  const navItems = [
+  const userInfoStr = localStorage.getItem("userInfo");
+  const userInfo = userInfoStr ? JSON.parse(userInfoStr) : null;
+
+  const baseNavItems = [
     { name: "Home", path: "/", icon: "home" },
     { name: "Profile", path: "/profile", icon: "person" },
     { name: "Cook", path: "/cook", icon: "restaurant" },
@@ -11,6 +14,13 @@ const MobileNav: React.FC = () => {
     { name: "Budget", path: "/budget", icon: "account_balance_wallet" },
   ];
 
+  const navItems = userInfo?.role === 'admin'
+    ? [
+        { name: "Admin", path: "/admin", icon: "admin_panel_settings" },
+        { name: "Logout", path: "/logout", icon: "logout" },
+      ]
+    : baseNavItems;
+
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 pb-safe z-50 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)]">
       <div className="flex justify-around items-center h-16 md:h-20 px-2 max-w-md mx-auto">
@@ -18,6 +28,13 @@ const MobileNav: React.FC = () => {
           <NavLink
             key={item.name}
             to={item.path}
+            onClick={(e) => {
+              if (item.path === "/logout") {
+                e.preventDefault();
+                localStorage.removeItem("userInfo");
+                window.location.href = "/login";
+              }
+            }}
             className={({ isActive }) =>
               `flex flex-col items-center justify-center w-full h-full space-y-1 transition-all duration-200 ${
                 isActive

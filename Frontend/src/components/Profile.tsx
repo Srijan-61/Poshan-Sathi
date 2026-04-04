@@ -15,6 +15,7 @@ interface ProfileData {
     primaryGoal: string;
   };
   healthConditions: string[];
+  profileImage?: string;
 }
 
 interface DailyRequirements {
@@ -45,6 +46,8 @@ const Profile: React.FC = () => {
   );
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -56,10 +59,7 @@ const Profile: React.FC = () => {
           headers: { Authorization: `Bearer ${userInfo.token}` },
         };
         // Assuming your backend route is set up at /api/profile
-        const { data } = await axios.get(
-          "http://localhost:5000/api/profile",
-          config,
-        );
+        const { data } = await axios.get("/api/profile", config);
 
         if (data.profile) {
           // Merge fetched data with defaults to prevent undefined inputs
@@ -103,11 +103,7 @@ const Profile: React.FC = () => {
       const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
       const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
 
-      const { data } = await axios.put(
-        "http://localhost:5000/api/profile",
-        { profile },
-        config,
-      );
+      const { data } = await axios.put("/api/profile", { profile }, config);
 
       setRequirements(data.dailyRequirements);
       toast.success("Profile updated successfully!");
@@ -115,6 +111,49 @@ const Profile: React.FC = () => {
       toast.error(err.response?.data?.message || "Failed to update profile.");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Instant local preview
+    const previewUrl = URL.createObjectURL(file);
+    setImagePreview(previewUrl);
+
+    // Start upload
+    await uploadImage(file);
+  };
+
+  const uploadImage = async (file: File) => {
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+      const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
+      const config = {
+        headers: {
+          Authorization: `Bearer ${userInfo.token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      };
+
+      const { data } = await axios.put("/api/profile/upload-image", formData, config);
+
+      setProfile((prev) => ({ ...prev, profileImage: data.profileImage }));
+      
+      // Update localStorage to keep profile image in sync if stored there
+      const updatedUserInfo = { ...userInfo, profileImage: data.profileImage };
+      localStorage.setItem("userInfo", JSON.stringify(updatedUserInfo));
+
+      toast.success("Profile image updated!");
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to upload image.");
+      setImagePreview(null); // Reset preview on error
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -133,6 +172,59 @@ const Profile: React.FC = () => {
         <p className="text-gray-500 font-medium">
           Update your metrics to recalulate your daily nutrition needs.
         </p>
+      </section>
+
+      {/* Profile Header with Avatar Upload */}
+      <section className="flex flex-col items-center md:flex-row gap-6 bg-white rounded-3xl p-6 border border-gray-100 shadow-sm">
+        <div className="relative group">
+          <div className={`w-32 h-32 rounded-full overflow-hidden border-4 border-gray-50 shadow-md ${isUploading ? 'opacity-50' : 'opacity-100'} transition-opacity`}>
+            {imagePreview || profile.profileImage ? (
+              <img 
+                src={imagePreview || profile.profileImage} 
+                alt="Profile" 
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400">
+                <span className="material-symbols-outlined text-5xl">person</span>
+              </div>
+            )}
+            
+            {isUploading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-[2px]">
+                <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            )}
+          </div>
+          
+          <label 
+            htmlFor="profile-image-upload" 
+            className="absolute bottom-0 right-0 bg-blue-600 text-white p-2 rounded-full shadow-lg cursor-pointer hover:bg-blue-700 transition-colors border-2 border-white"
+          >
+            <span className="material-symbols-outlined text-sm">photo_camera</span>
+            <input 
+              id="profile-image-upload" 
+              type="file" 
+              className="hidden" 
+              accept="image/*" 
+              onChange={handleImageChange}
+              disabled={isUploading}
+            />
+          </label>
+        </div>
+
+        <div className="flex flex-col text-center md:text-left">
+          <h2 className="text-2xl font-bold text-gray-900">{profile.name || "User Name"}</h2>
+          <p className="text-gray-500 font-medium capitalize">{profile.gender} • {profile.age} years old</p>
+          <div className="flex gap-2 mt-2">
+            <span className="px-3 py-1 bg-blue-50 text-blue-600 text-xs font-bold rounded-full uppercase tracking-wider">
+              {profile.healthGoals.primaryGoal.replace(/([A-Z])/g, ' $1').trim()}
+            </span>
+            <span className="px-3 py-1 bg-green-50 text-green-600 text-xs font-bold rounded-full uppercase tracking-wider">
+              {profile.dietType}
+            </span>
+          </div>
+        </div>
       </section>
 
       <form onSubmit={handleSave} className="flex flex-col gap-6">

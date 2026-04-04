@@ -20,10 +20,7 @@ const SmartSuggestions: React.FC = () => {
         const config = {
           headers: { Authorization: `Bearer ${userInfo.token}` },
         };
-        const response = await axios.get(
-          "http://localhost:5000/api/foods/recommendations",
-          config,
-        );
+        const response = await axios.get("/api/foods/recommendations", config);
 
         setData(response.data);
       } catch (err) {

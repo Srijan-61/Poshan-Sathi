@@ -33,23 +33,25 @@ const DesktopNav: React.FC = () => {
       </Link>
 
       {/* Center: Navigation Links */}
-      <div className="flex gap-2">
-        <Link to="/" className={getLinkClass("/")}>
-          Dashboard
-        </Link>
-        <Link to="/history" className={getLinkClass("/history")}>
-          Food Log
-        </Link>
-        <Link to="/menu" className={getLinkClass("/menu")}>
-          Recipes
-        </Link>
-        <Link to="/cook" className={getLinkClass("/cook")}>
-          Cook
-        </Link>
-        <Link to="/budget" className={getLinkClass("/budget")}>
-          Budget
-        </Link>
-      </div>
+      {userInfo?.role !== 'admin' && (
+        <div className="flex gap-2">
+          <Link to="/" className={getLinkClass("/")}>
+            Dashboard
+          </Link>
+          <Link to="/history" className={getLinkClass("/history")}>
+            Food Log
+          </Link>
+          <Link to="/menu" className={getLinkClass("/menu")}>
+            Recipes
+          </Link>
+          <Link to="/cook" className={getLinkClass("/cook")}>
+            Cook
+          </Link>
+          <Link to="/budget" className={getLinkClass("/budget")}>
+            Budget
+          </Link>
+        </div>
+      )}
 
       {/* Right: Profile & Actions */}
       <div className="relative group">
@@ -67,15 +69,28 @@ const DesktopNav: React.FC = () => {
         {/* Dropdown Menu (Slide down & fade in on hover) */}
         <div className="absolute top-full right-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-in-out z-50">
           <div className="w-48 bg-white border border-gray-100 rounded-xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)] py-2">
-            <Link
-              to="/profile"
-              className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors"
-            >
-              <span className="material-symbols-outlined text-[20px]">
-                person
-              </span>
-              Profile
-            </Link>
+             {userInfo?.role !== 'admin' && (
+              <Link
+                to="/profile"
+                className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors"
+              >
+                <span className="material-symbols-outlined text-[20px]">
+                  person
+                </span>
+                Profile
+              </Link>
+            )}
+            {userInfo?.role === 'admin' && (
+              <Link
+                to="/admin"
+                className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors"
+              >
+                <span className="material-symbols-outlined text-[20px]">
+                  admin_panel_settings
+                </span>
+                Admin Panel
+              </Link>
+            )}
             <button
               onClick={() => {
                 localStorage.removeItem("userInfo");

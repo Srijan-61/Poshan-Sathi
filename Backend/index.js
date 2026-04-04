@@ -8,9 +8,8 @@ const authRoutes = require("./routes/authRoutes");
 const foodRoutes = require("./routes/foodRoutes");
 const ingredientRoutes = require("./routes/ingredientRoutes");
 const logRoutes = require("./routes/logRoutes");
-
-
 const profileRoutes = require('./routes/profileRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 
 
@@ -32,9 +31,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/foods", foodRoutes);
 app.use("/api/ingredients", ingredientRoutes);
 app.use("/api/logs", logRoutes);
-
-
 app.use('/api/profile', profileRoutes);
+app.use('/api/admin', adminRoutes);
 
 
 const PORT = process.env.PORT || 5000;

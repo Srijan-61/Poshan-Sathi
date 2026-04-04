@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import toast from "react-hot-toast";
 
 interface Food {
   _id: string;
@@ -9,7 +10,7 @@ interface Food {
   carbs?: number;
   fats?: number;
   category?: string;
-  image_url?: string;
+  image?: string;
 }
 
 interface Props {
@@ -108,12 +109,16 @@ const FoodLibrary: React.FC<Props> = ({ foods, onLog }) => {
               className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow flex justify-between items-center group cursor-pointer"
             >
               <div className="flex items-center gap-4">
-                {/* Fallback Icon if no image */}
-                <div className="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center text-green-600 flex-shrink-0">
-                  <span className="material-symbols-outlined text-2xl">
-                    local_dining
-                  </span>
-                </div>
+                {/* Image or Fallback */}
+                {food.image ? (
+                  <img src={food.image} alt={food.food_name} className="w-14 h-14 rounded-2xl object-cover flex-shrink-0 border border-gray-100" />
+                ) : (
+                  <div className="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center text-green-600 flex-shrink-0">
+                    <span className="material-symbols-outlined text-2xl">
+                      local_dining
+                    </span>
+                  </div>
+                )}
 
                 <div>
                   <h3 className="font-bold text-gray-800 text-lg group-hover:text-green-700 transition-colors">
@@ -135,7 +140,7 @@ const FoodLibrary: React.FC<Props> = ({ foods, onLog }) => {
                   e.stopPropagation();
                   onLog(food, 1); // Logs 1 quantity of the food
                   // Optional: Add a toast notification here
-                  alert(`Logged 1 portion of ${food.food_name}`);
+                  toast.success(`Logged 1 portion of ${food.food_name}`);
                 }}
                 className="w-10 h-10 rounded-full bg-gray-50 text-green-600 flex items-center justify-center hover:bg-green-600 hover:text-white transition-all shadow-sm"
                 title="Log this food"

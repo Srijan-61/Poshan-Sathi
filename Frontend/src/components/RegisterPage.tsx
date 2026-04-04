@@ -76,14 +76,25 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ onLogin }) => {
 
     setLoading(true);
     try {
-      const { data } = await axios.post(
-        "http://localhost:5000/api/users",
-        formData,
-      );
+      // 1. Force the metrics to be real Numbers before sending to MongoDB
+      const payload = {
+        ...formData,
+        profile: {
+          ...formData.profile,
+          age: Number(age),
+          weight: Number(weight),
+          height: Number(height),
+        },
+      };
+
+      // 2. Use the correct auth/register endpoint!
+      const { data } = await axios.post("/api/auth/register", payload);
+
       toast.success("Account created! Welcome to Poshan Sathi.");
       localStorage.setItem("userInfo", JSON.stringify(data));
       onLogin(data);
     } catch (err: any) {
+      // This will now show the exact error message from your backend if something else is wrong
       toast.error(err.response?.data?.message || "Registration failed");
     } finally {
       setLoading(false);

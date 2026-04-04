@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 // --- Types ---
@@ -24,7 +25,7 @@ interface Ingredient {
 
 interface AddedItem {
   ingredient: Ingredient;
-  quantity: number; // Raw = grams, Cooked = units
+  qty: number; // Raw = grams, Cooked = units
   cals: number;
   cost: number;
 }
@@ -74,8 +75,8 @@ const CreateFood: React.FC<Props> = ({ onFoodCreated }) => {
         };
 
         const [ingRes, foodRes] = await Promise.all([
-          axios.get("http://localhost:5000/api/ingredients", config),
-          axios.get("http://localhost:5000/api/foods", config),
+          axios.get("/api/ingredients", config),
+          axios.get("/api/foods", config),
         ]);
 
         const rawIngredients = ingRes.data.map((i: any) => ({
@@ -133,7 +134,7 @@ const CreateFood: React.FC<Props> = ({ onFoodCreated }) => {
   const recordAlias = (index: number) => {
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) return alert("Use Chrome for Voice Features");
+    if (!SpeechRecognition) return toast.error("Use Chrome for Voice Features");
 
     const recognition = new SpeechRecognition();
     recognition.lang = "en-US";
@@ -271,8 +272,8 @@ const CreateFood: React.FC<Props> = ({ onFoodCreated }) => {
   const saveRecipe = async (e: React.FormEvent) => {
     e.preventDefault();
     if (addedList.length === 0)
-      return alert("Please add at least one ingredient!");
-    if (!recipeName.trim()) return alert("Please give your food a name!");
+      return toast.error("Please add at least one ingredient!");
+    if (!recipeName.trim()) return toast.error("Please give your food a name!");
 
     try {
       const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
@@ -307,18 +308,14 @@ const CreateFood: React.FC<Props> = ({ onFoodCreated }) => {
         },
       };
 
-      await axios.post(
-        "http://localhost:5000/api/custom-food",
-        newFood,
-        config,
-      );
+      await axios.post("/api/custom-food", newFood, config);
 
-      alert(`✅ Recipe Saved!`);
+      toast.success(`✅ Recipe Saved!`);
       onFoodCreated();
       navigate("/menu");
     } catch (err) {
       console.error("Failed to save food", err);
-      alert("Failed to save food. Check console for details.");
+      toast.error("Failed to save food. Check console for details.");
     }
   };
 
