@@ -17,7 +17,10 @@ const globalErrorHandler = require('./middleware/errorMiddleware');
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: ["http://localhost:5173", "https://poshan-sathi-backend.onrender.com"], 
+  credentials: true
+}));
 app.use(express.json());
 
 // Database Connection
