@@ -20,14 +20,16 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
 
     try {
       // Send login request to the backend
-      const { data } = await axios.post("/api/auth/login", {
+      const { data: response } = await axios.post("/api/auth/login", {
         email,
         password,
       });
 
-      // Save user info and token to local storage
-      localStorage.setItem("userInfo", JSON.stringify(data));
-      onLogin(data);
+      // Backend returns { success, data: { user, token } }
+      // We save the inner 'data' object which has the token at the top level
+      const userData = response.data;
+      localStorage.setItem("userInfo", JSON.stringify(userData));
+      onLogin(userData);
       toast.success("Login successful!");
       navigate("/"); // Redirect to dashboard
     } catch (err: any) {

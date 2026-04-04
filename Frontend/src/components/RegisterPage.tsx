@@ -88,11 +88,13 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ onLogin }) => {
       };
 
       // 2. Use the correct auth/register endpoint!
-      const { data } = await axios.post("/api/auth/register", payload);
+      const { data: response } = await axios.post("/api/auth/register", payload);
 
       toast.success("Account created! Welcome to Poshan Sathi.");
-      localStorage.setItem("userInfo", JSON.stringify(data));
-      onLogin(data);
+      // Backend returns { success, data: { user, token } }
+      const userData = response.data;
+      localStorage.setItem("userInfo", JSON.stringify(userData));
+      onLogin(userData);
     } catch (err: any) {
       // This will now show the exact error message from your backend if something else is wrong
       toast.error(err.response?.data?.message || "Registration failed");
