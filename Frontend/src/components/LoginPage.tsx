@@ -25,13 +25,20 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
         password,
       });
 
-      // Backend returns { success, data: { user, token } }
-      // We save the inner 'data' object which has the token at the top level
-      const userData = response.data;
+      // Backend returns { success, data: { user: { _id, name, email, role }, token } }
+      // Flatten so role & token are top-level for AuthGuard compatibility
+      const { user: userObj, token } = response.data;
+      const userData = { ...userObj, token };
       localStorage.setItem("userInfo", JSON.stringify(userData));
       onLogin(userData);
       toast.success("Login successful!");
-      navigate("/"); // Redirect to dashboard
+
+      // Route admin users directly to admin dashboard
+      if (userData.role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
     } catch (err: any) {
       toast.error(
         err.response?.data?.message ||
@@ -86,27 +93,6 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
           </div>
 
           {/* Language Switcher (Segmented Button) */}
-          <div className="flex h-10 items-center justify-center rounded-lg bg-[#ededed] p-1">
-            <label className="flex cursor-pointer h-full items-center justify-center overflow-hidden rounded px-3 bg-white shadow-sm text-[#141414] text-sm font-bold transition-all">
-              <span className="truncate">EN</span>
-              <input
-                defaultChecked
-                className="hidden"
-                name="lang"
-                type="radio"
-                value="English"
-              />
-            </label>
-            <label className="flex cursor-pointer h-full items-center justify-center overflow-hidden rounded px-3 text-neutral-500 text-sm font-bold transition-all">
-              <span className="truncate">नेपाली</span>
-              <input
-                className="hidden"
-                name="lang"
-                type="radio"
-                value="Nepali"
-              />
-            </label>
-          </div>
         </header>
 
         {/* Main Form Content */}

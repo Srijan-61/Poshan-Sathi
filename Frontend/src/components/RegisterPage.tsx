@@ -91,8 +91,10 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ onLogin }) => {
       const { data: response } = await axios.post("/api/auth/register", payload);
 
       toast.success("Account created! Welcome to Poshan Sathi.");
-      // Backend returns { success, data: { user, token } }
-      const userData = response.data;
+      // Backend returns { success, data: { user: { _id, name, email, role }, token } }
+      // Flatten so role & token are top-level for AuthGuard compatibility
+      const { user: userObj, token } = response.data;
+      const userData = { ...userObj, token };
       localStorage.setItem("userInfo", JSON.stringify(userData));
       onLogin(userData);
     } catch (err: any) {
@@ -104,7 +106,7 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ onLogin }) => {
   };
 
   return (
-    <main className="flex min-h-screen w-full bg-gray-50 font-sans absolute top-0 left-0 right-0 bottom-0 z-50">
+    <main className="flex min-h-screen w-full bg-neutral-50 font-sans absolute top-0 left-0 right-0 bottom-0 z-50">
       {/* Left Panel: Brand & Visuals */}
       <section className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-black">
         <div className="absolute inset-0 z-0">
@@ -139,14 +141,14 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ onLogin }) => {
           {/* Progress Header */}
           <div className="mb-12">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-xs font-bold uppercase tracking-widest text-gray-400">
+              <span className="text-xs font-bold uppercase tracking-widest text-neutral-400">
                 Step {step} of 2
               </span>
               <span className="text-xs font-bold text-green-600">
                 {step === 1 ? "Account Info" : "Health Profile"}
               </span>
             </div>
-            <div className="w-full h-1 bg-gray-100 rounded-full overflow-hidden">
+            <div className="w-full h-1 bg-neutral-100 rounded-full overflow-hidden">
               <div
                 className={`h-full bg-green-600 rounded-full transition-all duration-500 ${
                   step === 1 ? "w-1/2" : "w-full"
@@ -157,10 +159,10 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ onLogin }) => {
 
           {/* Form Heading */}
           <div className="mb-10">
-            <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight mb-3">
+            <h2 className="text-3xl font-extrabold text-neutral-900 tracking-tight mb-3">
               {step === 1 ? "Create an account" : "Tell us about yourself"}
             </h2>
-            <p className="text-gray-500 leading-relaxed font-medium">
+            <p className="text-neutral-500 leading-relaxed font-medium">
               {step === 1
                 ? "Join Poshan Sathi to start tracking your health and budget today."
                 : "These metrics are required to accurately calculate your daily calorie and macro goals."}
@@ -173,7 +175,7 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ onLogin }) => {
             {step === 1 && (
               <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-900 uppercase tracking-wider">
+                  <label className="text-xs font-bold text-neutral-900 uppercase tracking-wider">
                     Full Name
                   </label>
                   <input
@@ -181,13 +183,13 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ onLogin }) => {
                     name="name"
                     value={formData.name}
                     onChange={handleAccountChange}
-                    className="w-full h-14 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 transition-all outline-none font-medium"
+                    className="w-full h-14 px-4 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 transition-all outline-none font-medium"
                     placeholder="Srijan Bhandari"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-900 uppercase tracking-wider">
+                  <label className="text-xs font-bold text-neutral-900 uppercase tracking-wider">
                     Email Address
                   </label>
                   <input
@@ -195,13 +197,13 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ onLogin }) => {
                     name="email"
                     value={formData.email}
                     onChange={handleAccountChange}
-                    className="w-full h-14 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 transition-all outline-none font-medium"
+                    className="w-full h-14 px-4 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 transition-all outline-none font-medium"
                     placeholder="srijan@example.com"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-900 uppercase tracking-wider">
+                  <label className="text-xs font-bold text-neutral-900 uppercase tracking-wider">
                     Password
                   </label>
                   <input
@@ -209,7 +211,7 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ onLogin }) => {
                     name="password"
                     value={formData.password}
                     onChange={handleAccountChange}
-                    className="w-full h-14 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 transition-all outline-none font-medium"
+                    className="w-full h-14 px-4 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 transition-all outline-none font-medium"
                     placeholder="••••••••"
                   />
                 </div>
@@ -225,7 +227,7 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ onLogin }) => {
                       arrow_forward
                     </span>
                   </button>
-                  <p className="text-center text-gray-500 font-medium text-sm mt-6">
+                  <p className="text-center text-neutral-500 font-medium text-sm mt-6">
                     Already have an account?{" "}
                     <Link
                       to="/login"
@@ -244,7 +246,7 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ onLogin }) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Age */}
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-gray-900 uppercase tracking-wider">
+                    <label className="text-xs font-bold text-neutral-900 uppercase tracking-wider">
                       Age
                     </label>
                     <input
@@ -252,14 +254,14 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ onLogin }) => {
                       name="age"
                       value={formData.profile.age}
                       onChange={handleProfileChange}
-                      className="w-full h-14 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 transition-all outline-none font-medium"
+                      className="w-full h-14 px-4 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 transition-all outline-none font-medium"
                       placeholder="22"
                     />
                   </div>
 
                   {/* Gender (Custom Radio) */}
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-gray-900 uppercase tracking-wider">
+                    <label className="text-xs font-bold text-neutral-900 uppercase tracking-wider">
                       Gender
                     </label>
                     <div className="flex gap-2">
@@ -272,7 +274,7 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ onLogin }) => {
                           onChange={handleProfileChange}
                           className="sr-only peer"
                         />
-                        <div className="w-full h-14 flex items-center justify-center border border-gray-200 rounded-xl bg-gray-50 peer-checked:bg-green-50 peer-checked:border-green-600 peer-checked:text-green-700 cursor-pointer transition-all text-sm font-bold">
+                        <div className="w-full h-14 flex items-center justify-center border border-neutral-200 rounded-xl bg-neutral-50 peer-checked:bg-green-50 peer-checked:border-green-600 peer-checked:text-green-700 cursor-pointer transition-all text-sm font-bold">
                           Male
                         </div>
                       </label>
@@ -285,7 +287,7 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ onLogin }) => {
                           onChange={handleProfileChange}
                           className="sr-only peer"
                         />
-                        <div className="w-full h-14 flex items-center justify-center border border-gray-200 rounded-xl bg-gray-50 peer-checked:bg-green-50 peer-checked:border-green-600 peer-checked:text-green-700 cursor-pointer transition-all text-sm font-bold">
+                        <div className="w-full h-14 flex items-center justify-center border border-neutral-200 rounded-xl bg-neutral-50 peer-checked:bg-green-50 peer-checked:border-green-600 peer-checked:text-green-700 cursor-pointer transition-all text-sm font-bold">
                           Female
                         </div>
                       </label>
@@ -294,7 +296,7 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ onLogin }) => {
 
                   {/* Weight */}
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-gray-900 uppercase tracking-wider">
+                    <label className="text-xs font-bold text-neutral-900 uppercase tracking-wider">
                       Weight (kg)
                     </label>
                     <div className="relative">
@@ -303,10 +305,10 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ onLogin }) => {
                         name="weight"
                         value={formData.profile.weight}
                         onChange={handleProfileChange}
-                        className="w-full h-14 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 transition-all outline-none font-medium"
+                        className="w-full h-14 px-4 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 transition-all outline-none font-medium"
                         placeholder="70"
                       />
-                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-bold">
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 text-xs font-bold">
                         kg
                       </span>
                     </div>
@@ -314,7 +316,7 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ onLogin }) => {
 
                   {/* Height */}
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-gray-900 uppercase tracking-wider">
+                    <label className="text-xs font-bold text-neutral-900 uppercase tracking-wider">
                       Height (cm)
                     </label>
                     <div className="relative">
@@ -323,10 +325,10 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ onLogin }) => {
                         name="height"
                         value={formData.profile.height}
                         onChange={handleProfileChange}
-                        className="w-full h-14 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 transition-all outline-none font-medium"
+                        className="w-full h-14 px-4 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 transition-all outline-none font-medium"
                         placeholder="175"
                       />
-                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-bold">
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 text-xs font-bold">
                         cm
                       </span>
                     </div>
@@ -335,7 +337,7 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ onLogin }) => {
 
                 {/* Activity Level */}
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-900 uppercase tracking-wider">
+                  <label className="text-xs font-bold text-neutral-900 uppercase tracking-wider">
                     Activity Level
                   </label>
                   <div className="relative">
@@ -343,7 +345,7 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ onLogin }) => {
                       name="activityLevel"
                       value={formData.profile.activityLevel}
                       onChange={handleProfileChange}
-                      className="w-full h-14 px-4 bg-gray-50 border border-gray-200 rounded-xl appearance-none focus:ring-2 focus:ring-green-500/20 focus:border-green-600 transition-all outline-none font-medium text-gray-900"
+                      className="w-full h-14 px-4 bg-neutral-50 border border-neutral-200 rounded-xl appearance-none focus:ring-2 focus:ring-green-500/20 focus:border-green-600 transition-all outline-none font-medium text-neutral-900"
                     >
                       <option value="sedentary">
                         Sedentary (Office job, no exercise)
@@ -359,7 +361,7 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ onLogin }) => {
                       </option>
                     </select>
                     <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                      <span className="material-symbols-outlined text-gray-400">
+                      <span className="material-symbols-outlined text-neutral-400">
                         expand_more
                       </span>
                     </div>
@@ -368,7 +370,7 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ onLogin }) => {
 
                 {/* Health Goal */}
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-900 uppercase tracking-wider">
+                  <label className="text-xs font-bold text-neutral-900 uppercase tracking-wider">
                     Primary Health Goal
                   </label>
                   <div className="relative">
@@ -376,7 +378,7 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ onLogin }) => {
                       name="primaryGoal"
                       value={formData.profile.healthGoals.primaryGoal}
                       onChange={handleProfileChange}
-                      className="w-full h-14 px-4 bg-gray-50 border border-gray-200 rounded-xl appearance-none focus:ring-2 focus:ring-green-500/20 focus:border-green-600 transition-all outline-none font-medium text-gray-900"
+                      className="w-full h-14 px-4 bg-neutral-50 border border-neutral-200 rounded-xl appearance-none focus:ring-2 focus:ring-green-500/20 focus:border-green-600 transition-all outline-none font-medium text-neutral-900"
                     >
                       <option value="weightLoss">Weight Loss</option>
                       <option value="maintainWeight">Maintain Weight</option>
@@ -384,7 +386,7 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ onLogin }) => {
                       <option value="weightGain">Weight Gain</option>
                     </select>
                     <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                      <span className="material-symbols-outlined text-gray-400">
+                      <span className="material-symbols-outlined text-neutral-400">
                         expand_more
                       </span>
                     </div>
@@ -411,7 +413,7 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ onLogin }) => {
                     <button
                       type="button"
                       onClick={() => setStep(1)}
-                      className="inline-flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-green-600 transition-colors group"
+                      className="inline-flex items-center gap-2 text-sm font-bold text-neutral-500 hover:text-green-600 transition-colors group"
                     >
                       <span className="material-symbols-outlined text-sm group-hover:-translate-x-1 transition-transform">
                         arrow_back

@@ -13,12 +13,16 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+// Verify config at startup
+console.log(`☁️  Cloudinary configured for cloud: "${process.env.CLOUDINARY_CLOUD_NAME}"`);
+
 // Configure Multer Storage
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: 'poshansathi_foods',
+    folder: 'poshansathi',
     allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
+    transformation: [{ width: 800, height: 800, crop: 'limit', quality: 'auto' }],
   },
 });
 

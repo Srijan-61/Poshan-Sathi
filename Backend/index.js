@@ -10,6 +10,7 @@ const ingredientRoutes = require("./routes/ingredientRoutes");
 const logRoutes = require("./routes/logRoutes");
 const profileRoutes = require('./routes/profileRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const recommendationRoutes = require('./routes/recommendationRoutes');
 const globalErrorHandler = require('./middleware/errorMiddleware');
 
 
@@ -17,15 +18,7 @@ const globalErrorHandler = require('./middleware/errorMiddleware');
 const app = express();
 
 // Middleware
-app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "https://poshan-sathi.vercel.app" 
-  ],
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  credentials: true,
-  allowedHeaders: ["Content-Type", "Authorization"]
-}));
+app.use(cors());
 app.use(express.json());
 
 // Database Connection
@@ -41,6 +34,7 @@ app.use("/api/ingredients", ingredientRoutes);
 app.use("/api/logs", logRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/recommendations', recommendationRoutes);
 
 // Global Error Handling Middleware
 app.use(globalErrorHandler);

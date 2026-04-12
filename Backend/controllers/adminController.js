@@ -50,9 +50,10 @@ const getAllFoods = async (req, res) => {
 
 const createGlobalFood = async (req, res) => {
   try {
-    const foodData = { ...req.body };
+    const foodData = { ...req.body, owner: null };
     if (req.file) {
-      foodData.image = req.file.path || req.file.secure_url || req.body.imageUrl;
+      console.log(' Food image uploaded:', req.file.path);
+      foodData.image = req.file.path;
     } else if (req.body.imageUrl) {
       foodData.image = req.body.imageUrl;
     }
@@ -76,8 +77,10 @@ const createGlobalFood = async (req, res) => {
 const updateGlobalFood = async (req, res) => {
   try {
     const foodData = { ...req.body };
+    delete foodData.owner;
     if (req.file) {
-      foodData.image = req.file.path || req.file.secure_url || req.body.imageUrl;
+      console.log('📸 Food image updated:', req.file.path);
+      foodData.image = req.file.path;
     } else if (req.body.imageUrl) {
       foodData.image = req.body.imageUrl;
     }
@@ -124,7 +127,8 @@ const createIngredient = async (req, res) => {
   try {
     const ingData = { ...req.body };
     if (req.file) {
-      ingData.image = req.file.path || req.file.secure_url || req.body.imageUrl;
+      console.log('📸 Ingredient image uploaded:', req.file.path);
+      ingData.image = req.file.path;
     } else if (req.body.imageUrl) {
       ingData.image = req.body.imageUrl;
     }

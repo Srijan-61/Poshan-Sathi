@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create a custom axios instance
 const API = axios.create({
-  baseURL: 'https://poshan-sathi-backend.onrender.com', // Production backend URL
+  baseURL: '/', // Uses Vite proxy in dev (localhost:5173 -> localhost:5000)
 });
 
 // Add a request interceptor to attach the JWT token

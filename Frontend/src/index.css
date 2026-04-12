@@ -1,1 +1,11 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Smooth transitions when toggling dark mode */
+html {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+html.dark {
+  background-color: #0a0a0a; /* neutral-950 */
+  color-scheme: dark;
+}

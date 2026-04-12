@@ -1,16 +1,45 @@
 const Log = require("../models/Log");
 
 const getLogs = async (req, res) => {
-  // Get logs for the last 24 hours
-  const startOfDay = new Date();
-  startOfDay.setHours(0, 0, 0, 0);
+  const range = req.query.range || 'today';
+  const specificDate = req.query.date; // e.g. "2026-04-09"
+  let startDate, endDate;
 
-  const logs = await Log.find({ 
+  if (specificDate) {
+    // Specific date query — for viewing previous logs by date
+    startDate = new Date(specificDate);
+    startDate.setHours(0, 0, 0, 0);
+    endDate = new Date(specificDate);
+    endDate.setHours(23, 59, 59, 999);
+  } else if (req.query.month) {
+    // Specific month query — e.g. ?month=2026-03 for budget history
+    const [year, mon] = req.query.month.split("-").map(Number);
+    startDate = new Date(year, mon - 1, 1);
+    endDate = new Date(year, mon, 0, 23, 59, 59, 999); // Last day of that month
+  } else if (range === 'month') {
+    // Start of current month — for budget analytics
+    const now = new Date();
+    startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+  } else if (range === 'week') {
+    // Last 7 days — for weekly chart
+    startDate = new Date();
+    startDate.setDate(startDate.getDate() - 6);
+    startDate.setHours(0, 0, 0, 0);
+  } else {
+    // Default: today only — for daily logs
+    startDate = new Date();
+    startDate.setHours(0, 0, 0, 0);
+  }
+
+  const dateFilter = endDate
+    ? { $gte: startDate, $lte: endDate }
+    : { $gte: startDate };
+
+  const logs = await Log.find({
     user: req.user._id,
-    date: { $gte: startOfDay } 
-  }).sort({
-    date: -1,
-  });
+    date: dateFilter
+  }).sort({ date: -1 });
+
   res.json(logs);
 };
 

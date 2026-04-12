@@ -5,6 +5,7 @@ const ingredientSchema = new mongoose.Schema({
   category: String,
   price: Number,
   unit: String,
+  image: String,
   calories: Number,
   protein: Number,
   carbs: Number,

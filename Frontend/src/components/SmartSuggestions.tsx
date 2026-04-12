@@ -35,7 +35,7 @@ const SmartSuggestions: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="text-center p-4 text-gray-500">
+      <div className="text-center p-4 text-neutral-500">
         Analyzing nutrition goals...
       </div>
     );
@@ -44,12 +44,12 @@ const SmartSuggestions: React.FC = () => {
   // Safety check to prevent white-screen crashes
   if (!data || !data.insights || data.insights.length === 0) {
     return (
-      <div className="bg-gray-50 rounded-2xl p-6 border border-gray-200 text-center">
-        <span className="material-symbols-outlined text-gray-400 text-4xl mb-2">
+      <div className="bg-neutral-50 rounded-2xl p-6 border border-neutral-200 text-center">
+        <span className="material-symbols-outlined text-neutral-400 text-4xl mb-2">
           check_circle
         </span>
-        <h3 className="text-gray-900 font-bold mb-1">Nutrition on Track!</h3>
-        <p className="text-gray-500 text-sm">
+        <h3 className="text-neutral-900 font-bold mb-1">Nutrition on Track!</h3>
+        <p className="text-neutral-500 text-sm">
           You are hitting your goals perfectly today.
         </p>
       </div>
@@ -57,8 +57,8 @@ const SmartSuggestions: React.FC = () => {
   }
 
   return (
-    <section className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm flex flex-col gap-4">
-      <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2 mb-2">
+    <section className="bg-white rounded-3xl p-6 border border-neutral-100 shadow-sm flex flex-col gap-4">
+      <h3 className="text-xl font-bold text-neutral-900 flex items-center gap-2 mb-2">
         <span className="material-symbols-outlined text-indigo-500">
           psychology
         </span>
@@ -92,14 +92,14 @@ const SmartSuggestions: React.FC = () => {
                     key={food._id}
                     className="bg-white/80 rounded-xl p-2 min-w-[120px] shadow-sm"
                   >
-                    <span className="font-bold text-gray-900 text-sm block truncate">
+                    <span className="font-bold text-neutral-900 text-sm block truncate">
                       {food.food_name}
                     </span>
                     <div className="flex justify-between items-center w-full mt-1">
                       <span className="text-xs font-bold text-green-700">
                         Rs. {food.price}
                       </span>
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-neutral-500">
                         {food.calories} kcal
                       </span>
                     </div>

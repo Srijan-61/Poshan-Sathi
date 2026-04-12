@@ -19,7 +19,6 @@ declare global {
   }
 }
 
-
 // This calculates how many edits typos it takes to turn word A into word B.
 // e.g. "jol" -> "jhol" = distance 1. "momo" -> "momo" = distance 0.
 const levenshtein = (a: string, b: string): number => {
@@ -52,7 +51,9 @@ const VoiceLogger: React.FC<Props> = ({ foodLibrary, onLog }) => {
     if (!SpeechRecognition) return toast.error("Use Chrome browser.");
 
     const recognition = new SpeechRecognition();
+    //recognition.lang = "en-IN";
     recognition.lang = "en-US";
+    //recognition.lang = "ne-NP";
     recognition.continuous = false;
 
     recognition.onstart = () => {

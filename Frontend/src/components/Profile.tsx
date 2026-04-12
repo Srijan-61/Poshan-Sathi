@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "../utils/axios";
 import toast from "react-hot-toast";
+import { useTheme } from "../context/ThemeContext";
 
 interface ProfileData {
   name: string;
@@ -25,6 +26,21 @@ interface DailyRequirements {
   protein: number;
   carbs: number;
   fats: number;
+  fiber: number;
+  sugar: number;
+  sodium: number;
+  iron: number;
+  calcium: number;
+  vitaminD: number;
+  vitaminB12: number;
+  vitaminC: number;
+  vitaminA: number;
+  potassium: number;
+  magnesium: number;
+  zinc: number;
+  proteinRatio: number;
+  carbRatio: number;
+  fatRatio: number;
 }
 
 const Profile: React.FC = () => {
@@ -48,6 +64,7 @@ const Profile: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const { isDark } = useTheme();
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -58,11 +75,9 @@ const Profile: React.FC = () => {
         const config = {
           headers: { Authorization: `Bearer ${userInfo.token}` },
         };
-        // Assuming your backend route is set up at /api/profile
         const { data } = await axios.get("/api/profile", config);
 
         if (data.profile) {
-          // Merge fetched data with defaults to prevent undefined inputs
           setProfile((prev) => ({ ...prev, ...data.profile }));
         }
         if (data.dailyRequirements) {
@@ -88,7 +103,6 @@ const Profile: React.FC = () => {
         healthGoals: { ...profile.healthGoals, primaryGoal: value },
       });
     } else if (name === "healthConditions") {
-      // Handle single select for health condition for simplicity
       setProfile({ ...profile, healthConditions: [value] });
     } else {
       setProfile({ ...profile, [name]: value });
@@ -105,7 +119,9 @@ const Profile: React.FC = () => {
 
       const { data } = await axios.put("/api/profile", { profile }, config);
 
-      setRequirements(data.dailyRequirements);
+      if (data.dailyRequirements) {
+        setRequirements(data.dailyRequirements);
+      }
       toast.success("Profile updated successfully!");
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Failed to update profile.");
@@ -118,11 +134,9 @@ const Profile: React.FC = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Instant local preview
     const previewUrl = URL.createObjectURL(file);
     setImagePreview(previewUrl);
 
-    // Start upload
     await uploadImage(file);
   };
 
@@ -144,40 +158,69 @@ const Profile: React.FC = () => {
 
       setProfile((prev) => ({ ...prev, profileImage: data.profileImage }));
       
-      // Update localStorage to keep profile image in sync if stored there
       const updatedUserInfo = { ...userInfo, profileImage: data.profileImage };
       localStorage.setItem("userInfo", JSON.stringify(updatedUserInfo));
 
       toast.success("Profile image updated!");
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Failed to upload image.");
-      setImagePreview(null); // Reset preview on error
+      setImagePreview(null);
     } finally {
       setIsUploading(false);
     }
   };
 
+  // --- Theme-aware class helpers ---
+  const t = {
+    page: isDark ? "bg-neutral-950" : "",
+    card: isDark
+      ? "bg-neutral-900 border-neutral-800 shadow-none"
+      : "bg-white border-neutral-100 shadow-sm",
+    heading: isDark ? "text-white" : "text-neutral-900",
+    subtext: isDark ? "text-neutral-400" : "text-neutral-500",
+    label: isDark ? "text-neutral-400" : "text-neutral-500",
+    input: isDark
+      ? "bg-neutral-800 border-neutral-700 text-white placeholder-neutral-500 focus:border-blue-400"
+      : "bg-neutral-50 border-neutral-200 text-neutral-900 focus:border-blue-500",
+    select: isDark
+      ? "bg-neutral-800 border-neutral-700 text-white"
+      : "bg-neutral-50 border-neutral-200 text-neutral-900",
+    avatarBg: isDark ? "bg-neutral-800 text-neutral-500" : "bg-neutral-100 text-neutral-400",
+    tagBlueBg: isDark ? "bg-blue-900/40 text-blue-300" : "bg-blue-50 text-blue-600",
+    tagGreenBg: isDark ? "bg-green-900/40 text-green-300" : "bg-green-50 text-green-600",
+    saveBtn: isDark
+      ? "bg-green-500 hover:bg-green-400 text-neutral-950"
+      : "bg-green-600 hover:bg-green-700 text-white",
+  };
+
   if (isLoading) {
     return (
-      <div className="text-center p-10 text-gray-500">Loading profile...</div>
+      <div className={`text-center p-10 ${t.subtext}`}>Loading profile...</div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-6 pb-24 md:pb-6 pt-2 animate-in fade-in slide-in-from-bottom-4">
-      <section className="flex flex-col gap-2">
-        <h1 className="text-gray-900 text-3xl font-extrabold tracking-tight">
-          Your Profile
-        </h1>
-        <p className="text-gray-500 font-medium">
-          Update your metrics to recalulate your daily nutrition needs.
-        </p>
+    <div
+      className={`flex flex-col gap-6 pb-24 md:pb-6 pt-2 animate-in fade-in slide-in-from-bottom-4 transition-colors duration-300`}
+    >
+      {/* Page Header */}
+      <section className="flex items-start justify-between gap-4">
+        <div className="flex flex-col gap-2">
+          <h1 className={`text-3xl font-extrabold tracking-tight ${t.heading}`}>
+            Your Profile
+          </h1>
+          <p className={`font-medium ${t.subtext}`}>
+            Update your metrics to recalculate your daily nutrition needs.
+          </p>
+        </div>
       </section>
 
       {/* Profile Header with Avatar Upload */}
-      <section className="flex flex-col items-center md:flex-row gap-6 bg-white rounded-3xl p-6 border border-gray-100 shadow-sm">
+      <section
+        className={`flex flex-col items-center md:flex-row gap-6 rounded-3xl p-6 border transition-colors duration-300 ${t.card}`}
+      >
         <div className="relative group">
-          <div className={`w-32 h-32 rounded-full overflow-hidden border-4 border-gray-50 shadow-md ${isUploading ? 'opacity-50' : 'opacity-100'} transition-opacity`}>
+          <div className={`w-32 h-32 rounded-full overflow-hidden border-4 ${isDark ? "border-neutral-800" : "border-neutral-50"} shadow-md ${isUploading ? 'opacity-50' : 'opacity-100'} transition-opacity`}>
             {imagePreview || profile.profileImage ? (
               <img 
                 src={imagePreview || profile.profileImage} 
@@ -185,7 +228,7 @@ const Profile: React.FC = () => {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400">
+              <div className={`w-full h-full flex items-center justify-center ${t.avatarBg}`}>
                 <span className="material-symbols-outlined text-5xl">person</span>
               </div>
             )}
@@ -214,13 +257,13 @@ const Profile: React.FC = () => {
         </div>
 
         <div className="flex flex-col text-center md:text-left">
-          <h2 className="text-2xl font-bold text-gray-900">{profile.name || "User Name"}</h2>
-          <p className="text-gray-500 font-medium capitalize">{profile.gender} • {profile.age} years old</p>
-          <div className="flex gap-2 mt-2">
-            <span className="px-3 py-1 bg-blue-50 text-blue-600 text-xs font-bold rounded-full uppercase tracking-wider">
+          <h2 className={`text-2xl font-bold ${t.heading}`}>{profile.name || "User Name"}</h2>
+          <p className={`font-medium capitalize ${t.subtext}`}>{profile.gender} • {profile.age} years old</p>
+          <div className="flex gap-2 mt-2 justify-center md:justify-start">
+            <span className={`px-3 py-1 text-xs font-bold rounded-full uppercase tracking-wider ${t.tagBlueBg}`}>
               {profile.healthGoals.primaryGoal.replace(/([A-Z])/g, ' $1').trim()}
             </span>
-            <span className="px-3 py-1 bg-green-50 text-green-600 text-xs font-bold rounded-full uppercase tracking-wider">
+            <span className={`px-3 py-1 text-xs font-bold rounded-full uppercase tracking-wider ${t.tagGreenBg}`}>
               {profile.dietType}
             </span>
           </div>
@@ -229,8 +272,8 @@ const Profile: React.FC = () => {
 
       <form onSubmit={handleSave} className="flex flex-col gap-6">
         {/* Personal Details Card */}
-        <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm flex flex-col gap-4">
-          <h3 className="font-bold text-gray-900 text-lg flex items-center gap-2 mb-2">
+        <div className={`rounded-3xl p-6 border transition-colors duration-300 flex flex-col gap-4 ${t.card}`}>
+          <h3 className={`font-bold text-lg flex items-center gap-2 mb-2 ${t.heading}`}>
             <span className="material-symbols-outlined text-blue-500">
               person
             </span>
@@ -238,7 +281,7 @@ const Profile: React.FC = () => {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              <label className={`text-xs font-bold uppercase tracking-wider ${t.label}`}>
                 Name
               </label>
               <input
@@ -246,12 +289,12 @@ const Profile: React.FC = () => {
                 name="name"
                 value={profile.name}
                 onChange={handleChange}
-                className="bg-gray-50 border border-gray-200 rounded-xl p-3 font-medium text-gray-900 focus:outline-none focus:border-blue-500"
+                className={`border rounded-xl p-3 font-medium focus:outline-none transition-colors ${t.input}`}
                 required
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              <label className={`text-xs font-bold uppercase tracking-wider ${t.label}`}>
                 Age
               </label>
               <input
@@ -259,19 +302,19 @@ const Profile: React.FC = () => {
                 name="age"
                 value={profile.age}
                 onChange={handleChange}
-                className="bg-gray-50 border border-gray-200 rounded-xl p-3 font-medium text-gray-900 focus:outline-none focus:border-blue-500"
+                className={`border rounded-xl p-3 font-medium focus:outline-none transition-colors ${t.input}`}
                 required
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              <label className={`text-xs font-bold uppercase tracking-wider ${t.label}`}>
                 Gender
               </label>
               <select
                 name="gender"
                 value={profile.gender}
                 onChange={handleChange}
-                className="bg-gray-50 border border-gray-200 rounded-xl p-3 font-medium text-gray-900 focus:outline-none focus:border-blue-500"
+                className={`border rounded-xl p-3 font-medium focus:outline-none transition-colors ${t.select}`}
               >
                 <option value="male">Male</option>
                 <option value="female">Female</option>
@@ -279,7 +322,7 @@ const Profile: React.FC = () => {
               </select>
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              <label className={`text-xs font-bold uppercase tracking-wider ${t.label}`}>
                 Monthly Budget (Rs)
               </label>
               <input
@@ -287,15 +330,15 @@ const Profile: React.FC = () => {
                 name="monthlyBudget"
                 value={profile.monthlyBudget}
                 onChange={handleChange}
-                className="bg-gray-50 border border-gray-200 rounded-xl p-3 font-medium text-gray-900 focus:outline-none focus:border-blue-500"
+                className={`border rounded-xl p-3 font-medium focus:outline-none transition-colors ${t.input}`}
               />
             </div>
           </div>
         </div>
 
         {/* Body Metrics & Goals Card */}
-        <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm flex flex-col gap-4">
-          <h3 className="font-bold text-gray-900 text-lg flex items-center gap-2 mb-2">
+        <div className={`rounded-3xl p-6 border transition-colors duration-300 flex flex-col gap-4 ${t.card}`}>
+          <h3 className={`font-bold text-lg flex items-center gap-2 mb-2 ${t.heading}`}>
             <span className="material-symbols-outlined text-orange-500">
               monitor_weight
             </span>
@@ -303,7 +346,7 @@ const Profile: React.FC = () => {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              <label className={`text-xs font-bold uppercase tracking-wider ${t.label}`}>
                 Weight (kg)
               </label>
               <input
@@ -311,12 +354,12 @@ const Profile: React.FC = () => {
                 name="weight"
                 value={profile.weight}
                 onChange={handleChange}
-                className="bg-gray-50 border border-gray-200 rounded-xl p-3 font-medium text-gray-900 focus:outline-none focus:border-blue-500"
+                className={`border rounded-xl p-3 font-medium focus:outline-none transition-colors ${t.input}`}
                 required
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              <label className={`text-xs font-bold uppercase tracking-wider ${t.label}`}>
                 Height (cm)
               </label>
               <input
@@ -324,19 +367,19 @@ const Profile: React.FC = () => {
                 name="height"
                 value={profile.height}
                 onChange={handleChange}
-                className="bg-gray-50 border border-gray-200 rounded-xl p-3 font-medium text-gray-900 focus:outline-none focus:border-blue-500"
+                className={`border rounded-xl p-3 font-medium focus:outline-none transition-colors ${t.input}`}
                 required
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              <label className={`text-xs font-bold uppercase tracking-wider ${t.label}`}>
                 Primary Goal
               </label>
               <select
                 name="primaryGoal"
                 value={profile.healthGoals.primaryGoal}
                 onChange={handleChange}
-                className="bg-gray-50 border border-gray-200 rounded-xl p-3 font-medium text-gray-900 focus:outline-none focus:border-blue-500"
+                className={`border rounded-xl p-3 font-medium focus:outline-none transition-colors ${t.select}`}
               >
                 <option value="weightLoss">Weight Loss</option>
                 <option value="maintainWeight">Maintain Weight</option>
@@ -345,14 +388,14 @@ const Profile: React.FC = () => {
               </select>
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              <label className={`text-xs font-bold uppercase tracking-wider ${t.label}`}>
                 Activity Level
               </label>
               <select
                 name="activityLevel"
                 value={profile.activityLevel}
                 onChange={handleChange}
-                className="bg-gray-50 border border-gray-200 rounded-xl p-3 font-medium text-gray-900 focus:outline-none focus:border-blue-500"
+                className={`border rounded-xl p-3 font-medium focus:outline-none transition-colors ${t.select}`}
               >
                 <option value="sedentary">
                   Sedentary (Little/No Exercise)
@@ -370,8 +413,8 @@ const Profile: React.FC = () => {
         </div>
 
         {/* Health & Diet Card */}
-        <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm flex flex-col gap-4">
-          <h3 className="font-bold text-gray-900 text-lg flex items-center gap-2 mb-2">
+        <div className={`rounded-3xl p-6 border transition-colors duration-300 flex flex-col gap-4 ${t.card}`}>
+          <h3 className={`font-bold text-lg flex items-center gap-2 mb-2 ${t.heading}`}>
             <span className="material-symbols-outlined text-green-500">
               health_and_safety
             </span>
@@ -379,14 +422,14 @@ const Profile: React.FC = () => {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              <label className={`text-xs font-bold uppercase tracking-wider ${t.label}`}>
                 Diet Type
               </label>
               <select
                 name="dietType"
                 value={profile.dietType}
                 onChange={handleChange}
-                className="bg-gray-50 border border-gray-200 rounded-xl p-3 font-medium text-gray-900 focus:outline-none focus:border-blue-500"
+                className={`border rounded-xl p-3 font-medium focus:outline-none transition-colors ${t.select}`}
               >
                 <option value="nonVegetarian">Non-Vegetarian</option>
                 <option value="vegetarian">Vegetarian</option>
@@ -395,14 +438,14 @@ const Profile: React.FC = () => {
               </select>
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              <label className={`text-xs font-bold uppercase tracking-wider ${t.label}`}>
                 Health Condition
               </label>
               <select
                 name="healthConditions"
                 value={profile.healthConditions[0] || "none"}
                 onChange={handleChange}
-                className="bg-gray-50 border border-gray-200 rounded-xl p-3 font-medium text-gray-900 focus:outline-none focus:border-blue-500"
+                className={`border rounded-xl p-3 font-medium focus:outline-none transition-colors ${t.select}`}
               >
                 <option value="none">None</option>
                 <option value="diabetes">Diabetes / Pre-Diabetes</option>
@@ -419,7 +462,7 @@ const Profile: React.FC = () => {
         <button
           type="submit"
           disabled={isSaving}
-          className="w-full bg-green-600 text-white font-bold py-4 rounded-xl shadow-md hover:bg-green-700 transition-colors disabled:opacity-50"
+          className={`w-full font-bold py-4 rounded-xl shadow-md transition-colors disabled:opacity-50 ${t.saveBtn}`}
         >
           {isSaving
             ? "Saving & Recalculating..."
@@ -427,54 +470,72 @@ const Profile: React.FC = () => {
         </button>
       </form>
 
-      {/* Auto-Calculated Targets Display */}
+      {/* Auto-Calculated Targets Display — LIGHT MODE */}
       {requirements && (
-        <section className="bg-gray-900 rounded-3xl p-6 shadow-md text-white mt-4">
-          <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
-            <span className="material-symbols-outlined text-green-400">
-              auto_awesome
-            </span>
+        <section className={`rounded-3xl p-6 border transition-colors duration-300 mt-4 ${t.card}`}>
+          <h3 className={`text-xl font-bold mb-6 flex items-center gap-2 ${t.heading}`}>
+            <span className="material-symbols-outlined text-green-500">calculate</span>
             Your Daily Targets
           </h3>
 
-          <div className="flex justify-between items-end mb-6 border-b border-gray-700 pb-6">
-            <div className="flex flex-col">
-              <span className="text-gray-400 text-sm font-bold uppercase tracking-wider">
-                Daily Calories
-              </span>
-              <span className="text-4xl font-black text-white">
-                {requirements.calories}
-              </span>
+          {/* Energy Summary */}
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className={`flex flex-col items-center p-4 rounded-2xl ${isDark ? "bg-neutral-800" : "bg-neutral-50 border border-neutral-100"}`}>
+              <span className={`text-xs font-bold uppercase tracking-wider ${isDark ? "text-neutral-400" : "text-neutral-500"}`}>BMR</span>
+              <span className={`text-2xl font-black ${t.heading}`}>{requirements.bmr}</span>
+              <span className={`text-xs ${t.subtext}`}>kcal</span>
             </div>
-            <div className="flex flex-col text-right">
-              <span className="text-gray-400 text-sm font-bold uppercase tracking-wider">
-                TDEE
-              </span>
-              <span className="text-2xl font-bold text-gray-300">
-                {requirements.tdee} kcal
-              </span>
+            <div className={`flex flex-col items-center p-4 rounded-2xl border ${isDark ? "bg-green-900/20 border-green-700/40" : "bg-green-50 border-green-200"}`}>
+              <span className={`text-xs font-bold uppercase tracking-wider ${isDark ? "text-green-400" : "text-green-600"}`}>Daily Calories</span>
+              <span className={`text-3xl font-black ${isDark ? "text-green-300" : "text-green-700"}`}>{requirements.calories}</span>
+              <span className={`text-xs ${isDark ? "text-green-500/70" : "text-green-500"}`}>kcal/day</span>
+            </div>
+            <div className={`flex flex-col items-center p-4 rounded-2xl ${isDark ? "bg-neutral-800" : "bg-neutral-50 border border-neutral-100"}`}>
+              <span className={`text-xs font-bold uppercase tracking-wider ${isDark ? "text-neutral-400" : "text-neutral-500"}`}>TDEE</span>
+              <span className={`text-2xl font-black ${t.heading}`}>{requirements.tdee}</span>
+              <span className={`text-xs ${t.subtext}`}>kcal</span>
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div className="flex flex-col gap-1 p-3 bg-gray-800 rounded-2xl">
-              <span className="text-blue-400 font-bold text-xs uppercase">
-                Protein
-              </span>
-              <span className="font-bold text-xl">{requirements.protein}g</span>
+          {/* Macronutrients */}
+          <h4 className={`text-sm font-bold uppercase tracking-wider mb-3 ${t.label}`}>Macronutrients</h4>
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className={`flex flex-col gap-1 p-3 rounded-2xl text-center ${isDark ? "bg-blue-900/20 border border-blue-800/30" : "bg-blue-50 border border-blue-100"}`}>
+              <span className={`font-bold text-xs uppercase ${isDark ? "text-blue-400" : "text-blue-600"}`}>Protein</span>
+              <span className={`font-bold text-xl ${t.heading}`}>{requirements.protein}g</span>
+              <span className={`text-xs ${t.subtext}`}>{requirements.proteinRatio}%</span>
             </div>
-            <div className="flex flex-col gap-1 p-3 bg-gray-800 rounded-2xl">
-              <span className="text-orange-400 font-bold text-xs uppercase">
-                Carbs
-              </span>
-              <span className="font-bold text-xl">{requirements.carbs}g</span>
+            <div className={`flex flex-col gap-1 p-3 rounded-2xl text-center ${isDark ? "bg-orange-900/20 border border-orange-800/30" : "bg-orange-50 border border-orange-100"}`}>
+              <span className={`font-bold text-xs uppercase ${isDark ? "text-orange-400" : "text-orange-600"}`}>Carbs</span>
+              <span className={`font-bold text-xl ${t.heading}`}>{requirements.carbs}g</span>
+              <span className={`text-xs ${t.subtext}`}>{requirements.carbRatio}%</span>
             </div>
-            <div className="flex flex-col gap-1 p-3 bg-gray-800 rounded-2xl">
-              <span className="text-green-400 font-bold text-xs uppercase">
-                Fats
-              </span>
-              <span className="font-bold text-xl">{requirements.fats}g</span>
+            <div className={`flex flex-col gap-1 p-3 rounded-2xl text-center ${isDark ? "bg-green-900/20 border border-green-800/30" : "bg-green-50 border border-green-100"}`}>
+              <span className={`font-bold text-xs uppercase ${isDark ? "text-green-400" : "text-green-600"}`}>Fats</span>
+              <span className={`font-bold text-xl ${t.heading}`}>{requirements.fats}g</span>
+              <span className={`text-xs ${t.subtext}`}>{requirements.fatRatio}%</span>
             </div>
+          </div>
+
+          {/* Micronutrients */}
+          <h4 className={`text-sm font-bold uppercase tracking-wider mb-3 ${t.label}`}>Micronutrients</h4>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {[
+              { label: "Iron", value: requirements.iron, unit: "mg", color: isDark ? "text-rose-400" : "text-rose-600", bg: isDark ? "bg-rose-900/15" : "bg-rose-50" },
+              { label: "Calcium", value: requirements.calcium, unit: "mg", color: isDark ? "text-sky-400" : "text-sky-600", bg: isDark ? "bg-sky-900/15" : "bg-sky-50" },
+              { label: "Vitamin C", value: requirements.vitaminC, unit: "mg", color: isDark ? "text-lime-400" : "text-lime-600", bg: isDark ? "bg-lime-900/15" : "bg-lime-50" },
+              { label: "Fiber", value: requirements.fiber, unit: "g", color: isDark ? "text-amber-400" : "text-amber-600", bg: isDark ? "bg-amber-900/15" : "bg-amber-50" },
+              { label: "Sugar (max)", value: requirements.sugar, unit: "g", color: isDark ? "text-pink-400" : "text-pink-600", bg: isDark ? "bg-pink-900/15" : "bg-pink-50" },
+              { label: "Sodium (max)", value: requirements.sodium, unit: "mg", color: isDark ? "text-red-400" : "text-red-600", bg: isDark ? "bg-red-900/15" : "bg-red-50" },
+            ].map((nutrient) => (
+              <div key={nutrient.label} className={`flex flex-col p-3 rounded-xl ${nutrient.bg}`}>
+                <span className={`${nutrient.color} font-bold text-[10px] uppercase tracking-wider`}>{nutrient.label}</span>
+                <span className={`font-bold text-base ${t.heading}`}>
+                  {nutrient.value}
+                  <span className={`text-xs ml-1 ${t.subtext}`}>{nutrient.unit}</span>
+                </span>
+              </div>
+            ))}
           </div>
         </section>
       )}

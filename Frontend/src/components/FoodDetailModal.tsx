@@ -25,7 +25,7 @@ const FoodDetailModal: React.FC<Props> = ({ log, onClose }) => {
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
       <div className="bg-white w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl transform transition-all scale-100">
         {/* Header Image */}
-        <div className="relative h-48 bg-gray-100">
+        <div className="relative h-48 bg-neutral-100">
           <img
             src={log.image || "https://placehold.co/600x400?text=No+Image"}
             alt={log.food_name}
@@ -33,7 +33,7 @@ const FoodDetailModal: React.FC<Props> = ({ log, onClose }) => {
           />
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 bg-white/90 text-gray-800 p-2 rounded-full font-bold shadow-sm hover:bg-white"
+            className="absolute top-4 right-4 bg-white/90 text-neutral-800 p-2 rounded-full font-bold shadow-sm hover:bg-white"
           >
             ✕
           </button>
@@ -81,7 +81,7 @@ const FoodDetailModal: React.FC<Props> = ({ log, onClose }) => {
 
           <button
             onClick={onClose}
-            className="w-full py-3 bg-gray-900 text-white rounded-xl font-bold hover:bg-black transition-colors"
+            className="w-full py-3 bg-neutral-900 text-white rounded-xl font-bold hover:bg-black transition-colors"
           >
             Close Details
           </button>
