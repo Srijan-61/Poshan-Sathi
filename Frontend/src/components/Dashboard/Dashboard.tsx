@@ -1,6 +1,6 @@
 import React from "react";
-import { useTheme } from "../context/ThemeContext";
-import RecommendationsWidget from "./RecommendationsWidget";
+import { useTheme } from "../../context/ThemeContext";
+import RecommendationsWidget from "../RecommendationsWidget";
 
 // --- Types ---
 interface Log {

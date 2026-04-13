@@ -4,19 +4,19 @@ import { Toaster } from "react-hot-toast";
 import { AnimatePresence } from "framer-motion";
 
 import SplashScreen from "./components/SplashScreen";
-import DesktopNav from "./components/DesktopNav";
-import MobileNav from "./components/MobileNav";
-import Dashboard from "./components/Dashboard";
-import CreateFood from "./components/CreateFood";
-import FoodLibrary from "./components/FoodLibrary";
-import DailyLogs from "./components/DailyLogs";
-import LoginPage from "./components/LoginPage";
-import RegisterPage from "./components/RegisterPage";
-import Budget from "./components/Budget";
-import Profile from "./components/Profile";
-import AdminDashboard from "./components/AdminDashboard";
+import DesktopNav from "./components/Nav/DesktopNav";
+import MobileNav from "./components/Nav/MobileNav";
+import Dashboard from "./components/Dashboard/Dashboard";
+import CreateFood from "./components/CreateFood/CreateFood";
+import FoodLibrary from "./components/FoodLibrary/FoodLibrary";
+import DailyLogs from "./components/DailyLogs/DailyLogs";
+import LoginPage from "./components/Auth/LoginPage";
+import RegisterPage from "./components/Auth/RegisterPage";
+import Budget from "./components/Budget/Budget";
+import Profile from "./components/Profile/Profile";
+import AdminDashboard from "./components/AdminDashboard/AdminDashboard";
 
-import { ProtectedRoute, PublicRoute, AdminRoute } from "./components/AuthGuard";
+import { ProtectedRoute, PublicRoute, AdminRoute } from "./components/Auth/AuthGuard";
 import { useAppData } from "./hooks/useAppData";
 
 function App() {
