@@ -60,7 +60,7 @@ export default function LoggingControls({
           <p
             className={`font-medium ${feedback.includes("❌") ? "text-red-500" : feedback.includes("✅") ? "text-green-600" : subtext}`}
           >
-            {feedback || 'Tap and say "I had a bowl of rice and dal"'}
+            {feedback || 'Tap and say "momo"'}
           </p>
         </div>
       </div>

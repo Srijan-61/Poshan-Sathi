@@ -128,7 +128,7 @@ const DailyLogs: React.FC<Props> = ({ logs, foods, onLog, onDelete, onUpdateQuan
     let bestScore = -1;
 
     if (!foods || foods.length === 0) {
-      setFeedback("❌ Error: Food database is empty or still loading.");
+      setFeedback(" Error: Food database is empty or still loading.");
       setTimeout(() => setFeedback(""), 4000);
       return;
     }
@@ -155,10 +155,10 @@ const DailyLogs: React.FC<Props> = ({ logs, foods, onLog, onDelete, onUpdateQuan
 
     if (bestMatch) {
       onLog(bestMatch, qty);
-      setFeedback(`✅ Logged: ${qty}x ${bestMatch.food_name}`);
+      setFeedback(` Logged: ${qty}x ${bestMatch.food_name}`);
       setTimeout(() => setFeedback(""), 3000);
     } else {
-      setFeedback(`❌ No match found for "${text}"`);
+      setFeedback(` No match found for "${text}"`);
       setTimeout(() => setFeedback(""), 4000);
     }
   };

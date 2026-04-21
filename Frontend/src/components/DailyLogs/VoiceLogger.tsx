@@ -184,7 +184,7 @@ const VoiceLogger: React.FC<Props> = ({ foodLibrary, onLog }) => {
         className={`w-full py-4 rounded-full font-bold text-white transition-all shadow-md flex items-center justify-center gap-2
           ${isListening ? "bg-red-500 animate-pulse" : "bg-blue-600 active:scale-95 hover:bg-blue-700"}`}
       >
-        {isListening ? " Listening..." : "🎤 Tap to Speak"}
+        {isListening ? " Listening..." : " Tap to Speak"}
       </button>
       {feedback && (
         <p className="text-center text-sm font-semibold text-green-700 mt-2">
