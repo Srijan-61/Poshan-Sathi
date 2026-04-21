@@ -31,12 +31,13 @@ const getRecommendations = catchAsync(async (req, res) => {
   });
 
   const spentToday = logs.reduce((sum, log) => sum + (log.cost || 0), 0);
-  const dailyBudget =
+  const monthlyBudget =
     user.profile && user.profile.monthlyBudget
-      ? Math.round(user.profile.monthlyBudget / 30)
-      : 500; // default 500 if not set
+      ? Number(user.profile.monthlyBudget)
+      : 0;
+  const dailyBudget = monthlyBudget > 0 ? Math.round(monthlyBudget / 30) : 0;
 
-  const remainingBudget = Math.max(0, dailyBudget - spentToday);
+  const remainingBudget = dailyBudget > 0 ? Math.max(0, dailyBudget - spentToday) : Infinity;
 
   // 3. Get Preferences
   const dietType = user.profile?.dietType || "nonVegetarian";
@@ -53,13 +54,18 @@ const getRecommendations = catchAsync(async (req, res) => {
             { owner: req.user._id },
           ],
         },
-        {
-          $or: [
-            { price: { $lte: remainingBudget } },
-            { price: null },
-            { price: { $exists: false } },
-          ],
-        },
+        // Only filter by price when a budget is set
+        ...(dailyBudget > 0
+          ? [
+              {
+                $or: [
+                  { price: { $lte: remainingBudget } },
+                  { price: null },
+                  { price: { $exists: false } },
+                ],
+              },
+            ]
+          : []),
       ],
     },
   };

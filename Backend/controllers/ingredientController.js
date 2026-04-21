@@ -2,15 +2,11 @@ const axios = require("axios");
 const Ingredient = require("../models/Ingredient");
 const catchAsync = require("../utils/catchAsync");
 
-/** Escape user input so it can be used safely inside a MongoDB $regex. */
+
 function escapeRegex(string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-/**
- * Map a MongoDB Ingredient document to the unified shape expected by the client
- * (camelCase micros to match foods / CreateFood state).
- */
 function mapLocalIngredient(doc) {
   const m = doc.micros || {};
   return {
@@ -104,12 +100,9 @@ const searchNutrition = catchAsync(async (req, res) => {
   const localResults = localDocs.map(mapLocalIngredient);
 
   /**
-   * We only hit Edamam when:
-   * - local matches are fewer than 3 (automatic fallback), OR
-   * - the user explicitly asked for global results (`includeGlobal`).
+   * We only hit Edamam when the user explicitly asked for global results (`includeGlobal`).
    */
-  const shouldCallEdamam =
-    localResults.length < 3 || includeGlobal === true;
+  const shouldCallEdamam = includeGlobal === true;
 
   const appId = process.env.EDAMAM_APP_ID;
   const appKey = process.env.EDAMAM_APP_KEY;
@@ -124,7 +117,7 @@ const searchNutrition = catchAsync(async (req, res) => {
           app_id: appId,
           app_key: appKey,
         },
-        timeout: 12_000,
+        timeout: 8000, // Slightly more aggressive timeout
       });
 
       const hints = Array.isArray(data.hints) ? data.hints : [];
@@ -140,8 +133,23 @@ const searchNutrition = catchAsync(async (req, res) => {
         )
         .slice(0, 20);
     } catch (err) {
-      // If Edamam fails, still return local matches so the Cook flow works offline.
-      console.error("Edamam parser error:", err.message || err);
+      /**
+       * Graceful Fallback Logic:
+       * If Edamam is down, rate-limited (429), or keys are expired (401),
+       * we simply log the warning and return local results.
+       * This prevents the "Cook" flow from crashing for the end user.
+       */
+      const status = err.response?.status;
+      if (status === 429) {
+        console.warn("Edamam API limit reached (429). Falling back to local search.");
+      } else if (status === 401 || status === 403) {
+        console.error("Edamam API Auth Error: Check your APP_ID and APP_KEY.");
+      } else {
+        console.error("Edamam parser error:", err.message || "Unknown error");
+      }
+      
+      // Ensure edamamResults is an empty array so the spread operator below doesn't fail
+      edamamResults = [];
     }
   }
 

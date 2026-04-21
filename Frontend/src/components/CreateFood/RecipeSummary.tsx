@@ -1,6 +1,3 @@
-import React from "react";
-import { useTheme } from "../../context/ThemeContext";
-
 interface RecipeSummaryProps {
   totalCalories: number;
   totalPrice: number;
@@ -10,53 +7,26 @@ export default function RecipeSummary({
   totalCalories,
   totalPrice
 }: RecipeSummaryProps) {
-  const { isDark } = useTheme();
+  const subtext = "text-neutral-500";
 
   return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
-      <div
-        className={`rounded-2xl border p-4 sm:p-5 ${
-          isDark
-            ? "border-orange-800/40 bg-gradient-to-br from-orange-950/80 via-orange-900/40 to-neutral-900"
-            : "border-orange-100/80 bg-gradient-to-br from-orange-50 to-orange-100/90"
-        }`}
-      >
-        <p
-          className={`text-xs font-bold uppercase tracking-wide ${
-            isDark ? "text-orange-300/90" : "text-orange-700"
-          }`}
-        >
-          Total Calories
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="rounded-2xl border border-neutral-100 border-l-4 border-l-orange-500 p-6 bg-white shadow-sm ring-1 ring-black/[0.02]">
+        <p className={`text-[10px] font-black uppercase tracking-widest mb-2 ${subtext}`}>
+          Estimated Energy
         </p>
-        <p
-          className={`mt-1 text-2xl font-extrabold tabular-nums sm:text-3xl ${
-            isDark ? "text-orange-200" : "text-orange-700"
-          }`}
-        >
+        <p className="text-3xl font-black tabular-nums text-orange-500 tracking-tight">
           {Math.round(totalCalories)}{" "}
-          <span className="text-sm font-semibold opacity-90">kcal</span>
+          <span className="text-sm font-bold opacity-60">kcal</span>
         </p>
       </div>
-      <div
-        className={`rounded-2xl border p-4 sm:p-5 ${
-          isDark
-            ? "border-emerald-800/40 bg-gradient-to-br from-emerald-950/70 via-emerald-900/35 to-neutral-900"
-            : "border-emerald-100/80 bg-gradient-to-br from-emerald-50 to-green-50/90"
-        }`}
-      >
-        <p
-          className={`text-xs font-bold uppercase tracking-wide ${
-            isDark ? "text-emerald-300/90" : "text-emerald-800"
-          }`}
-        >
-          Estimated Cost
+      
+      <div className="rounded-2xl border border-neutral-100 border-l-4 border-l-emerald-500 p-6 bg-white shadow-sm ring-1 ring-black/[0.02]">
+        <p className={`text-[10px] font-black uppercase tracking-widest mb-2 ${subtext}`}>
+          Total Market Cost
         </p>
-        <p
-          className={`mt-1 text-2xl font-extrabold tabular-nums sm:text-3xl ${
-            isDark ? "text-emerald-200" : "text-emerald-800"
-          }`}
-        >
-          <span className="text-sm font-semibold opacity-90">Rs.</span>{" "}
+        <p className="text-3xl font-black tabular-nums text-emerald-600 tracking-tight">
+          <span className="text-sm font-bold opacity-60">Rs.</span>{" "}
           {Math.round(totalPrice)}
         </p>
       </div>

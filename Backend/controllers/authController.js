@@ -2,11 +2,7 @@ const User = require('../models/User');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
 
-/**
- * @desc    Register a new user
- * @route   POST /api/auth/register
- * @access  Public
- */
+
 const registerUser = catchAsync(async (req, res, next) => {
   const { name, email, password, profile } = req.body;
 
@@ -46,7 +42,8 @@ const registerUser = catchAsync(async (req, res, next) => {
         _id: user.id, 
         name: user.profile?.name, 
         email: user.email, 
-        role: user.role
+        role: user.role,
+        profileImage: user.profile?.profileImage || ''
       },
       token: user.generateAuthToken()
     }
@@ -82,7 +79,8 @@ const loginUser = catchAsync(async (req, res, next) => {
         _id: user.id, 
         name: user.profile?.name, 
         email: user.email, 
-        role: user.role
+        role: user.role,
+        profileImage: user.profile?.profileImage || ''
       },
       token: user.generateAuthToken()
     }

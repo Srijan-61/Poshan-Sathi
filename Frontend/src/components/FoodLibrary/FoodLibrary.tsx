@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import toast from "react-hot-toast";
 import API from "../../utils/axios";
-import { useTheme } from "../../context/ThemeContext";
 
 import type { Food, Props } from "./types";
 import { PAGE_SIZE } from "./consts";
@@ -23,10 +22,7 @@ const FoodLibrary: React.FC<Props> = ({ onLog }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [selectedFood, setSelectedFood] = useState<Food | null>(null);
-  const [logQty, setLogQty] = useState(1);
-
-  const { isDark } = useTheme();
-  const subtext = isDark ? "text-neutral-400" : "text-neutral-500";
+  const [logQty, setLogQty] = useState(1);  const subtext = "text-neutral-500";
 
   const debouncedSearch = useDebounce(searchTerm, 400);
   const sentinelRef = useRef<HTMLDivElement>(null);

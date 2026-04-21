@@ -1,11 +1,7 @@
-import React from "react";
-import { useTheme } from "../../context/ThemeContext";
 import { getProgressColor } from "./utils";
 
 interface Props {
   todaySpent: number;
-  dailyBudgetGoal: number;
-  dailyPercent: number;
   monthSpent: number;
   monthlyBudgetGoal: number;
   monthlyPercent: number;
@@ -13,63 +9,56 @@ interface Props {
 
 export default function FinancialSummary({
   todaySpent,
-  dailyBudgetGoal,
-  dailyPercent,
   monthSpent,
   monthlyBudgetGoal,
   monthlyPercent,
 }: Props) {
-  const { isDark } = useTheme();
+  const cardBase = "bg-white border-neutral-200 shadow-sm";
+  const heading = "text-neutral-900";
+  const subtext = "text-neutral-500";
+  const progressBg = "bg-neutral-100";
 
-  const card = isDark ? "bg-neutral-900 border-neutral-800 shadow-none" : "bg-white border-neutral-100 shadow-sm";
-  const heading = isDark ? "text-white" : "text-neutral-900";
-  const subtext = isDark ? "text-neutral-400" : "text-neutral-500";
-  const progressBg = isDark ? "bg-neutral-800" : "bg-neutral-100";
+  const hasBudget = monthlyBudgetGoal > 0;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div className={`rounded-3xl p-6 border flex flex-col gap-4 ${card}`}>
+      {/* Today's Spend */}
+      <div className={`rounded-xl p-6 border border-l-4 border-l-emerald-500 flex flex-col gap-3 ${cardBase}`}>
         <div className="flex justify-between items-center">
-          <h3 className={`font-bold uppercase tracking-wider text-sm ${subtext}`}>
+          <p className={`text-[10px] font-bold uppercase tracking-wider ${subtext}`}>
             Today's Spend
-          </h3>
-          <span className={`material-symbols-outlined ${subtext}`}>today</span>
+          </p>
+          <span className="text-emerald-500 text-xl font-extrabold">रु</span>
         </div>
-        <div className="flex items-end gap-2">
-          <h2 className={`text-4xl font-black ${heading}`}>Rs. {todaySpent}</h2>
-          <span className={`font-medium mb-1 ${subtext}`}>
-            / {dailyBudgetGoal}
-          </span>
-        </div>
-        <div className={`w-full rounded-full h-3 mt-2 overflow-hidden ${progressBg}`}>
-          <div
-            className={`h-full rounded-full transition-all ${getProgressColor(dailyPercent)}`}
-            style={{ width: `${dailyPercent}%` }}
-          ></div>
-        </div>
+        <h2 className="text-4xl font-extrabold tabular-nums text-emerald-500">
+          Rs. {todaySpent}
+        </h2>
       </div>
 
-      <div className={`rounded-3xl p-6 border flex flex-col gap-4 ${card}`}>
+      {/* This Month */}
+      <div className={`rounded-xl p-6 border border-l-4 border-l-indigo-500 flex flex-col gap-3 ${cardBase}`}>
         <div className="flex justify-between items-center">
-          <h3 className={`font-bold uppercase tracking-wider text-sm ${subtext}`}>
+          <p className={`text-[10px] font-bold uppercase tracking-wider ${subtext}`}>
             This Month
-          </h3>
-          <span className={`material-symbols-outlined ${subtext}`}>
-            calendar_month
-          </span>
+          </p>
+          <span className="text-indigo-500 text-xl font-extrabold">रु</span>
         </div>
-        <div className="flex items-end gap-2">
-          <h2 className={`text-4xl font-black ${heading}`}>Rs. {monthSpent}</h2>
-          <span className={`font-medium mb-1 ${subtext}`}>
-            / {monthlyBudgetGoal}
-          </span>
+        <div className="flex items-baseline gap-2">
+          <h2 className={`text-4xl font-extrabold tabular-nums ${heading}`}>Rs. {monthSpent}</h2>
+          {hasBudget && (
+            <span className={`font-medium text-sm ${subtext}`}>
+              / {monthlyBudgetGoal}
+            </span>
+          )}
         </div>
-        <div className={`w-full rounded-full h-3 mt-2 overflow-hidden ${progressBg}`}>
-          <div
-            className={`h-full rounded-full transition-all ${getProgressColor(monthlyPercent)}`}
-            style={{ width: `${monthlyPercent}%` }}
-          ></div>
-        </div>
+        {hasBudget && (
+          <div className={`w-full rounded-full h-2 overflow-hidden ${progressBg}`}>
+            <div
+              className={`h-full rounded-full transition-all ${getProgressColor(monthlyPercent)}`}
+              style={{ width: `${monthlyPercent}%` }}
+            ></div>
+          </div>
+        )}
       </div>
     </div>
   );

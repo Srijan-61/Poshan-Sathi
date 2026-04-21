@@ -21,4 +21,5 @@ export interface Props {
   foods: Food[];
   onLog: (food: any, qty: number) => void;
   onDelete: (id: string) => void;
+  onUpdateQuantity: (id: string, newQuantity: number) => void;
 }

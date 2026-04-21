@@ -65,6 +65,46 @@ const createLog = async (req, res) => {
   }
 };
 
+const updateLog = async (req, res) => {
+  try {
+    const { quantity: newQty } = req.body;
+
+    if (!newQty || newQty < 1) {
+      return res.status(400).json({ message: "Quantity must be at least 1" });
+    }
+
+    const log = await Log.findOne({ _id: req.params.id, user: req.user._id });
+
+    if (!log) {
+      return res.status(404).json({ message: "Log not found or unauthorized" });
+    }
+
+    const oldQty = log.quantity || 1;
+    const ratio = newQty / oldQty;
+
+    log.quantity = newQty;
+    log.calories = Math.round(log.calories * ratio);
+    log.cost = Math.round(log.cost * ratio * 100) / 100;
+    log.protein = Math.round((log.protein || 0) * ratio * 100) / 100;
+    log.carbs = Math.round((log.carbs || 0) * ratio * 100) / 100;
+    log.fats = Math.round((log.fats || 0) * ratio * 100) / 100;
+
+    if (log.micros) {
+      log.micros.iron = Math.round((log.micros.iron || 0) * ratio * 100) / 100;
+      log.micros.calcium = Math.round((log.micros.calcium || 0) * ratio * 100) / 100;
+      log.micros.vitaminC = Math.round((log.micros.vitaminC || 0) * ratio * 100) / 100;
+      log.micros.fiber = Math.round((log.micros.fiber || 0) * ratio * 100) / 100;
+      log.micros.sugar = Math.round((log.micros.sugar || 0) * ratio * 100) / 100;
+      log.micros.sodium = Math.round((log.micros.sodium || 0) * ratio * 100) / 100;
+    }
+
+    await log.save();
+    res.json(log);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 const deleteLog = async (req, res) => {
   const deletedLog = await Log.findOneAndDelete({ 
     _id: req.params.id, 
@@ -78,4 +118,4 @@ const deleteLog = async (req, res) => {
   res.json({ message: "Deleted" });
 };
 
-module.exports = { getLogs, createLog, deleteLog };
+module.exports = { getLogs, createLog, updateLog, deleteLog };

@@ -1,4 +1,4 @@
-import React from "react";
+
 import type { User } from "./types";
 
 interface UsersTableProps {
@@ -37,18 +37,17 @@ export default function UsersTable({
         </thead>
         <tbody className="divide-y divide-neutral-100">
           {usersList
-            .filter(u => (u.name || "").toLowerCase().includes(searchQuery.toLowerCase()) || (u.email || "").toLowerCase().includes(searchQuery.toLowerCase()))
+            .filter(u => (u.email || "").toLowerCase().includes(searchQuery.toLowerCase()))
             .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
             .map((usr) => (
             <tr key={usr._id} className="hover:bg-neutral-50/50 transition-colors group">
               <td className="px-6 py-4">
                 <div className="flex items-center space-x-4">
                   <div className="w-10 h-10 rounded-full bg-[#f0fcf6] text-[#00a86b] font-bold text-xs flex items-center justify-center shrink-0 border border-[#e2f7eb]">
-                    {getInitials(usr.name || usr.email || "UN")}
+                    {getInitials(usr.email || "UN")}
                   </div>
                   <div className="min-w-0">
-                    <p className="font-bold text-neutral-900 group-hover:text-[#00a86b] transition-colors truncate">{usr.name || 'Unknown User'}</p>
-                    <p className="text-xs text-neutral-500 truncate">{usr.email}</p>
+                    <p className="font-bold text-neutral-900 group-hover:text-[#00a86b] transition-colors truncate">{usr.email}</p>
                   </div>
                 </div>
               </td>

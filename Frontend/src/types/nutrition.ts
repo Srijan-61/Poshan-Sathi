@@ -16,8 +16,8 @@ export interface AnalyticsTargets {
 }
 
 export const DEFAULT_TARGETS: AnalyticsTargets = {
-  dailyBudget: 500,
-  monthlyBudget: 15000,
+  dailyBudget: 0,
+  monthlyBudget: 0,
   dailyRequirements: {
     calories: 2000,
     protein: 60,

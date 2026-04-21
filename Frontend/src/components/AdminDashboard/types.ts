@@ -31,10 +31,10 @@ export interface Food {
 export interface Ingredient {
   _id: string;
   name: string;
-  caloriesPer100g: number | string;
-  proteinPer100g: number | string;
-  carbsPer100g: number | string;
-  fatPer100g: number | string;
+  calories: number | string;
+  protein: number | string;
+  carbs: number | string;
+  fats: number | string;
   image?: string;
 }
 
@@ -62,9 +62,9 @@ export interface FoodFormState {
 
 export interface IngredientFormState {
   name: string;
-  caloriesPer100g: string;
-  proteinPer100g: string;
-  carbsPer100g: string;
-  fatPer100g: string;
+  calories: string;
+  protein: string;
+  carbs: string;
+  fats: string;
   imageUrl: string;
 }

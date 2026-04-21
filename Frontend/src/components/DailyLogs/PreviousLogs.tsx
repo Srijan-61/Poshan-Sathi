@@ -1,5 +1,4 @@
-import React from "react";
-import { useTheme } from "../../context/ThemeContext";
+
 import { formatDisplayDate, toLocalDateString, formatTime } from "./utils";
 import type { Log } from "./types";
 
@@ -26,14 +25,10 @@ export default function PreviousLogs({
   historyTotalCost,
   getFoodImage
 }: PreviousLogsProps) {
-  const { isDark } = useTheme();
-
-  const card = isDark ? "bg-neutral-900 border-neutral-800" : "bg-white border-neutral-100";
-  const heading = isDark ? "text-white" : "text-neutral-900";
-  const subtext = isDark ? "text-neutral-400" : "text-neutral-500";
-  const inputCls = isDark
-    ? "bg-neutral-800 border-neutral-700 text-white placeholder-neutral-500"
-    : "bg-neutral-50 border-neutral-200 text-neutral-900 placeholder-neutral-400";
+  const card = "bg-white border-neutral-100";
+  const heading = "text-neutral-900";
+  const subtext = "text-neutral-500";
+  const inputCls = "bg-neutral-50 border-neutral-200 text-neutral-900 placeholder-neutral-400";
 
   const getQuickDate = (daysAgo: number) => {
     const d = new Date();
@@ -44,7 +39,7 @@ export default function PreviousLogs({
   return (
     <section className="flex flex-col gap-6 w-full mt-2">
       <div className="flex items-center gap-3 px-2">
-        <span className={`material-symbols-outlined text-2xl ${isDark ? "text-indigo-400" : "text-indigo-600"}`}>
+        <span className={`material-symbols-outlined text-2xl ${"text-indigo-600"}`}>
           calendar_month
         </span>
         <h3 className={`font-bold text-xl ${heading}`}>View Previous Logs</h3>
@@ -72,9 +67,7 @@ export default function PreviousLogs({
                   className={`px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200
                     ${isActive
                       ? "bg-indigo-600 text-white shadow-md shadow-indigo-200"
-                      : isDark
-                        ? "bg-neutral-800 text-neutral-400 hover:bg-indigo-900/40 hover:text-indigo-400"
-                        : "bg-neutral-100 text-neutral-600 hover:bg-indigo-50 hover:text-indigo-600"
+                      : "bg-neutral-100 text-neutral-600 hover:bg-indigo-50 hover:text-indigo-600"
                     }
                   `}
                 >
@@ -101,7 +94,7 @@ export default function PreviousLogs({
                 setSelectedDate("");
                 setHistoryLogs([]);
               }}
-              className={`text-sm font-bold transition-colors flex items-center gap-1 ${isDark ? "text-neutral-500 hover:text-red-400" : "text-neutral-400 hover:text-red-500"}`}
+              className={`text-sm font-bold transition-colors flex items-center gap-1 ${"text-neutral-400 hover:text-red-500"}`}
             >
               <span className="material-symbols-outlined text-[16px]">close</span>
               Clear
@@ -114,8 +107,8 @@ export default function PreviousLogs({
         <div className="flex flex-col gap-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-2">
             <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isDark ? "bg-indigo-900/30" : "bg-indigo-100"}`}>
-                <span className={`material-symbols-outlined ${isDark ? "text-indigo-400" : "text-indigo-600"}`}>event</span>
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${"bg-indigo-100"}`}>
+                <span className={`material-symbols-outlined ${"text-indigo-600"}`}>event</span>
               </div>
               <div>
                 <h4 className={`font-bold ${heading}`}>{formatDisplayDate(selectedDate)}</h4>
@@ -127,13 +120,13 @@ export default function PreviousLogs({
 
             {historyLogs.length > 0 && (
               <div className="flex items-center gap-4">
-                <div className={`px-4 py-2 rounded-lg ${isDark ? "bg-orange-900/20" : "bg-orange-50"}`}>
-                  <span className={`text-sm font-bold ${isDark ? "text-orange-400" : "text-orange-600"}`}>
+                <div className={`px-4 py-2 rounded-lg ${"bg-orange-50"}`}>
+                  <span className={`text-sm font-bold ${"text-orange-600"}`}>
                     {Math.round(historyTotalCalories)} kcal
                   </span>
                 </div>
-                <div className={`px-4 py-2 rounded-lg ${isDark ? "bg-green-900/20" : "bg-green-50"}`}>
-                  <span className={`text-sm font-bold ${isDark ? "text-green-400" : "text-green-600"}`}>
+                <div className={`px-4 py-2 rounded-lg ${"bg-green-50"}`}>
+                  <span className={`text-sm font-bold ${"text-green-600"}`}>
                     Rs. {Math.round(historyTotalCost)}
                   </span>
                 </div>
@@ -151,14 +144,14 @@ export default function PreviousLogs({
           )}
 
           {historyError && !isLoadingHistory && (
-            <div className={`text-center p-8 rounded-[1.5rem] border font-medium ${isDark ? "bg-red-900/20 border-red-800 text-red-400" : "bg-red-50 border-red-100 text-red-600"}`}>
+            <div className={`text-center p-8 rounded-[1.5rem] border font-medium ${"bg-red-50 border-red-100 text-red-600"}`}>
               {historyError}
             </div>
           )}
 
           {!isLoadingHistory && !historyError && historyLogs.length === 0 && (
             <div className={`text-center p-10 rounded-[1.5rem] border shadow-sm ${card}`}>
-              <span className={`material-symbols-outlined text-5xl block mb-3 ${isDark ? "text-neutral-600" : "text-neutral-300"}`}>
+              <span className={`material-symbols-outlined text-5xl block mb-3 ${"text-neutral-300"}`}>
                 no_meals
               </span>
               <p className={`font-medium ${subtext}`}>No meals were logged on this date.</p>
@@ -167,7 +160,7 @@ export default function PreviousLogs({
 
           {!isLoadingHistory && !historyError && historyLogs.length > 0 && (
             <div className="relative flex flex-col gap-4">
-              <div className={`absolute top-6 bottom-6 left-[2.5rem] w-px border-l border-dashed hidden md:block ${isDark ? "border-indigo-800" : "border-indigo-200"}`}></div>
+              <div className={`absolute top-6 bottom-6 left-[2.5rem] w-px border-l border-dashed hidden md:block ${"border-indigo-200"}`}></div>
 
               {historyLogs.map((log) => (
                 <div
@@ -175,11 +168,11 @@ export default function PreviousLogs({
                   className="relative flex flex-col md:flex-row gap-4 md:gap-6 items-start md:items-center"
                 >
                   <div className="z-10 shrink-0 mx-auto md:mx-0">
-                    <div className={`w-16 h-16 md:w-20 md:h-20 rounded-full p-0.5 border shadow-sm flex items-center justify-center ${isDark ? "bg-neutral-900 border-indigo-800" : "bg-white border-indigo-100"}`}>
+                    <div className={`w-16 h-16 md:w-20 md:h-20 rounded-full p-0.5 border shadow-sm flex items-center justify-center ${"bg-white border-indigo-100"}`}>
                       {getFoodImage(log.food_name) ? (
                         <img src={getFoodImage(log.food_name)} className="w-full h-full rounded-full object-cover" alt={log.food_name} />
                       ) : (
-                        <div className={`w-full h-full rounded-full flex items-center justify-center ${isDark ? "bg-indigo-900/30 text-indigo-400" : "bg-indigo-50 text-indigo-400"}`}>
+                        <div className={`w-full h-full rounded-full flex items-center justify-center ${"bg-indigo-50 text-indigo-400"}`}>
                           <span className="material-symbols-outlined text-2xl">
                             set_meal
                           </span>
@@ -194,7 +187,7 @@ export default function PreviousLogs({
                         {log.food_name}
                       </h4>
                       <div className="flex items-center justify-center sm:justify-start gap-3 text-sm">
-                        <span className={`px-2.5 py-0.5 rounded-md text-xs font-bold ${isDark ? "bg-neutral-800 text-neutral-300" : "bg-neutral-100 text-neutral-600"}`}>
+                        <span className={`px-2.5 py-0.5 rounded-md text-xs font-bold ${"bg-neutral-100 text-neutral-600"}`}>
                           Qty: {log.quantity}
                         </span>
                         <span className={`font-medium ${subtext}`}>

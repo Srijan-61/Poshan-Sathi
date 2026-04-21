@@ -9,10 +9,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-/**
- * Delete an image from Cloudinary using its URL
- * @param {string} imageUrl - The full URL of the image stored on Cloudinary
- */
+
 const deleteCloudinaryImage = async (imageUrl) => {
   if (!imageUrl) return;
 

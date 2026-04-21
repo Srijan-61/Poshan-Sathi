@@ -1,5 +1,4 @@
 import React from "react";
-import { useTheme } from "../../context/ThemeContext";
 import type { ProfileData } from "./types";
 
 interface Props {
@@ -10,21 +9,13 @@ interface Props {
 }
 
 export default function ProfileForm({ profile, handleChange, handleSave, isSaving }: Props) {
-  const { isDark } = useTheme();
-
   const t = {
-    card: isDark ? "bg-neutral-900 border-neutral-800 shadow-none" : "bg-white border-neutral-100 shadow-sm",
-    heading: isDark ? "text-white" : "text-neutral-900",
-    label: isDark ? "text-neutral-400" : "text-neutral-500",
-    input: isDark
-      ? "bg-neutral-800 border-neutral-700 text-white placeholder-neutral-500 focus:border-blue-400"
-      : "bg-neutral-50 border-neutral-200 text-neutral-900 focus:border-blue-500",
-    select: isDark
-      ? "bg-neutral-800 border-neutral-700 text-white"
-      : "bg-neutral-50 border-neutral-200 text-neutral-900",
-    saveBtn: isDark
-      ? "bg-green-500 hover:bg-green-400 text-neutral-950"
-      : "bg-green-600 hover:bg-green-700 text-white",
+    card: "bg-white border-neutral-100 shadow-sm",
+    heading: "text-neutral-900",
+    label: "text-neutral-500",
+    input: "bg-neutral-50 border-neutral-200 text-neutral-900 focus:border-blue-500",
+    select: "bg-neutral-50 border-neutral-200 text-neutral-900",
+    saveBtn: "bg-green-600 hover:bg-green-700 text-white",
   };
 
   return (
@@ -179,7 +170,10 @@ export default function ProfileForm({ profile, handleChange, handleSave, isSavin
               <option value="diabetes">Diabetes / Pre-Diabetes</option>
               <option value="hypertension">Hypertension (Blood Pressure)</option>
               <option value="anemia">Anemia (Iron Deficiency)</option>
+              <option value="heartDisease">Heart Disease</option>
+              <option value="cholesterol">High Cholesterol</option>
               <option value="kidneyDisease">Kidney Disease</option>
+              <option value="gastritis">Gastritis</option>
             </select>
           </div>
         </div>

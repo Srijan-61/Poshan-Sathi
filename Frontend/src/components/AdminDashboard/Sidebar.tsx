@@ -1,4 +1,4 @@
-import React from "react";
+
 import { Users, Database, Carrot, LogOut, Leaf } from "lucide-react";
 import type { TabType } from "./types";
 

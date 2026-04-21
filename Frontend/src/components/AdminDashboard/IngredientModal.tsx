@@ -5,6 +5,7 @@ import type { IngredientFormState } from "./types";
 interface IngredientModalProps {
   isIngredientModalOpen: boolean;
   setIsIngredientModalOpen: (isOpen: boolean) => void;
+  editingIngredientId: string | null;
   ingredientForm: IngredientFormState;
   setIngredientForm: React.Dispatch<React.SetStateAction<IngredientFormState>>;
   handleIngredientSubmit: (e: React.FormEvent) => void;
@@ -17,6 +18,7 @@ interface IngredientModalProps {
 export default function IngredientModal({
   isIngredientModalOpen,
   setIsIngredientModalOpen,
+  editingIngredientId,
   ingredientForm,
   setIngredientForm,
   handleIngredientSubmit,
@@ -31,7 +33,7 @@ export default function IngredientModal({
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-neutral-900/40 backdrop-blur-sm">
       <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
         <div className="p-5 border-b border-neutral-100 sticky top-0 bg-white z-10 flex justify-between items-center">
-          <h2 className="text-xl font-bold text-neutral-900">Add Ingredient</h2>
+          <h2 className="text-xl font-bold text-neutral-900">{editingIngredientId ? "Edit Ingredient" : "Add Ingredient"}</h2>
           <button onClick={() => setIsIngredientModalOpen(false)} className="text-neutral-400 hover:bg-neutral-100 p-2 rounded-full transition-colors">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12"></path></svg>
           </button>
@@ -45,21 +47,21 @@ export default function IngredientModal({
 
           <div>
             <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Calories (per 100g) *</label>
-            <input required type="number" min="0" value={ingredientForm.caloriesPer100g} onChange={e => setIngredientForm({...ingredientForm, caloriesPer100g: e.target.value})} className="w-full rounded-lg border border-neutral-200 bg-neutral-50/50 py-2.5 px-4 focus:ring-2 focus:ring-[#00a86b]/20 focus:border-[#00a86b] outline-none transition-all font-medium" />
+            <input required type="number" min="0" value={ingredientForm.calories} onChange={e => setIngredientForm({...ingredientForm, calories: e.target.value})} className="w-full rounded-lg border border-neutral-200 bg-neutral-50/50 py-2.5 px-4 focus:ring-2 focus:ring-[#00a86b]/20 focus:border-[#00a86b] outline-none transition-all font-medium" />
           </div>
 
           <div className="grid grid-cols-3 gap-5">
             <div>
               <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Proteins *</label>
-              <input required type="number" min="0" step="0.1" value={ingredientForm.proteinPer100g} onChange={e => setIngredientForm({...ingredientForm, proteinPer100g: e.target.value})} className="w-full rounded-lg border border-neutral-200 bg-neutral-50/50 py-2.5 px-4 focus:ring-2 focus:ring-[#00a86b]/20 focus:border-[#00a86b] outline-none transition-all font-medium" />
+              <input required type="number" min="0" step="0.1" value={ingredientForm.protein} onChange={e => setIngredientForm({...ingredientForm, protein: e.target.value})} className="w-full rounded-lg border border-neutral-200 bg-neutral-50/50 py-2.5 px-4 focus:ring-2 focus:ring-[#00a86b]/20 focus:border-[#00a86b] outline-none transition-all font-medium" />
             </div>
             <div>
               <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Carbs *</label>
-              <input required type="number" min="0" step="0.1" value={ingredientForm.carbsPer100g} onChange={e => setIngredientForm({...ingredientForm, carbsPer100g: e.target.value})} className="w-full rounded-lg border border-neutral-200 bg-neutral-50/50 py-2.5 px-4 focus:ring-2 focus:ring-[#00a86b]/20 focus:border-[#00a86b] outline-none transition-all font-medium" />
+              <input required type="number" min="0" step="0.1" value={ingredientForm.carbs} onChange={e => setIngredientForm({...ingredientForm, carbs: e.target.value})} className="w-full rounded-lg border border-neutral-200 bg-neutral-50/50 py-2.5 px-4 focus:ring-2 focus:ring-[#00a86b]/20 focus:border-[#00a86b] outline-none transition-all font-medium" />
             </div>
             <div>
               <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Fats *</label>
-              <input required type="number" min="0" step="0.1" value={ingredientForm.fatPer100g} onChange={e => setIngredientForm({...ingredientForm, fatPer100g: e.target.value})} className="w-full rounded-lg border border-neutral-200 bg-neutral-50/50 py-2.5 px-4 focus:ring-2 focus:ring-[#00a86b]/20 focus:border-[#00a86b] outline-none transition-all font-medium" />
+              <input required type="number" min="0" step="0.1" value={ingredientForm.fats} onChange={e => setIngredientForm({...ingredientForm, fats: e.target.value})} className="w-full rounded-lg border border-neutral-200 bg-neutral-50/50 py-2.5 px-4 focus:ring-2 focus:ring-[#00a86b]/20 focus:border-[#00a86b] outline-none transition-all font-medium" />
             </div>
           </div>
           
@@ -83,7 +85,7 @@ export default function IngredientModal({
           <div className="pt-4 border-t border-neutral-100 flex justify-end gap-3">
             <button type="button" onClick={() => setIsIngredientModalOpen(false)} className="px-5 py-2.5 text-sm font-bold text-neutral-600 bg-white border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors">Cancel</button>
             <button type="submit" disabled={isSubmitting} className="px-5 py-2.5 text-sm font-bold text-white bg-[#00a86b] rounded-lg hover:bg-[#00905a] disabled:opacity-50 flex items-center gap-2 shadow-sm transition-colors">
-              {isSubmitting && <Loader2 size={16} className="animate-spin" />} Save
+              {isSubmitting && <Loader2 size={16} className="animate-spin" />} {editingIngredientId ? "Update" : "Save"}
             </button>
           </div>
         </form>

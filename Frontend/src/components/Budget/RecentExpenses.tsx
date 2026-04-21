@@ -1,5 +1,4 @@
-import React from "react";
-import { useTheme } from "../../context/ThemeContext";
+
 import type { Log } from "./types";
 
 interface Props {
@@ -7,11 +6,9 @@ interface Props {
 }
 
 export default function RecentExpenses({ logs }: Props) {
-  const { isDark } = useTheme();
-
-  const card = isDark ? "bg-neutral-900 border-neutral-800 shadow-none" : "bg-white border-neutral-100 shadow-sm";
-  const heading = isDark ? "text-white" : "text-neutral-900";
-  const subtext = isDark ? "text-neutral-400" : "text-neutral-500";
+  const card = "bg-white border-neutral-100 shadow-sm";
+  const heading = "text-neutral-900";
+  const subtext = "text-neutral-500";
 
   return (
     <section className={`rounded-3xl p-6 border ${card}`}>
@@ -27,7 +24,7 @@ export default function RecentExpenses({ logs }: Props) {
           No expenses tracked yet.
         </div>
       ) : (
-        <ul className={`divide-y ${isDark ? "divide-neutral-800" : "divide-neutral-100"}`}>
+        <ul className={`divide-y ${"divide-neutral-100"}`}>
           {logs.slice(0, 5).map((log) => (
             <li
               key={log._id}
@@ -35,7 +32,7 @@ export default function RecentExpenses({ logs }: Props) {
             >
               <div className="flex items-center gap-4">
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                  isDark ? "bg-neutral-800 text-neutral-400" : "bg-neutral-50 text-neutral-500"
+                  "bg-neutral-50 text-neutral-500"
                 }`}>
                   <span className="material-symbols-outlined">restaurant</span>
                 </div>

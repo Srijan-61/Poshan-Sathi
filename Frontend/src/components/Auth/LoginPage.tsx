@@ -50,7 +50,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
   };
 
   return (
-    <div className="flex min-h-screen w-full flex-col lg:flex-row bg-[#f7f7f7] font-sans antialiased absolute top-0 left-0 right-0 bottom-0 z-50">
+    <div className="flex min-h-screen w-full flex-col lg:flex-row bg-[#f4f9f4] font-sans antialiased absolute top-0 left-0 right-0 bottom-0 z-50">
       {/* Left Column: Visual Hero (Hidden on Mobile) */}
       <div className="hidden lg:flex w-full lg:w-1/2 relative bg-neutral-200 overflow-hidden">
         <div
@@ -83,7 +83,7 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
       </div>
 
       {/* Right Column: Login Form */}
-      <div className="w-full lg:w-1/2 flex flex-col bg-[#f7f7f7] relative">
+      <div className="w-full lg:w-1/2 flex flex-col bg-[#f4f9f4] relative">
         {/* Top Navigation: Logo & Language */}
         <header className="w-full flex items-center justify-between px-6 py-6 lg:px-12">
           <div className="flex items-center gap-3 text-[#141414]">
@@ -137,6 +137,12 @@ const LoginPage: React.FC<Props> = ({ onLogin }) => {
                   <span className="text-[#141414] text-sm font-bold leading-normal">
                     Password
                   </span>
+                  <Link
+                    to="/forgot-password"
+                    className="text-xs text-neutral-400 hover:text-[#141414] transition-colors font-medium"
+                  >
+                    Forgot Password?
+                  </Link>
                 </div>
                 <div className="flex w-full items-center rounded-xl bg-white border border-[#dbdbdb] focus-within:border-[#141414] focus-within:ring-1 focus-within:ring-[#141414] transition-all overflow-hidden h-14">
                   <div className="flex items-center justify-center pl-4 text-neutral-400">

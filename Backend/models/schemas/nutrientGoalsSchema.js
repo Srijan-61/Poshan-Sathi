@@ -21,8 +21,34 @@ const nutrientGoalsSchema = new mongoose.Schema({
     fiber: Number,        // grams
     iron: Number,         // mg
     calcium: Number,      // mg
-    sodium: Number        // mg
-  }
+    sodium: Number,       // mg
+    sugar: Number         // grams
+  },
+
+  // User-defined health monitoring targets (displayed on dashboard HealthTargetsCard)
+  // Each entry represents one nutrient the user wants to monitor with a min or max limit
+  customHealthTargets: [{
+    nutrient: {
+      type: String,
+      required: true,
+      enum: ['sugar', 'sodium', 'iron', 'calcium', 'fiber', 'protein', 'carbs', 'fats', 'vitaminC', 'potassium', 'magnesium', 'zinc']
+    },
+    type: {
+      type: String,
+      required: true,
+      enum: ['min', 'max']
+    },
+    value: {
+      type: Number,
+      required: true,
+      min: 0
+    },
+    label: {
+      type: String,
+      default: ''
+    },
+    _id: false
+  }]
 }, { _id: false });
 
 module.exports = nutrientGoalsSchema;

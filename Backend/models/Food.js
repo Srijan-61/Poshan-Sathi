@@ -2,10 +2,7 @@ const mongoose = require('mongoose');
 
 const foodSchema = new mongoose.Schema({
   food_name: { type: String, required: true },
-  /**
-   * null / missing = global catalog food (visible to all users).
-   * Set to a User _id = private custom food for that user only.
-   */
+ 
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -20,6 +17,10 @@ const foodSchema = new mongoose.Schema({
   protein: Number,
   carbs: Number,
   fats: Number,
+  ingredients: {
+    type: [mongoose.Schema.Types.Mixed],
+    default: [],
+  },
   micros: {
     iron: { type: Number, default: 0 },
     calcium: { type: Number, default: 0 },

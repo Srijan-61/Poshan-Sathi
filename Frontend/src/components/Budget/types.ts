@@ -8,6 +8,5 @@ export interface Log {
 }
 
 export interface BudgetProps {
-  dailyBudgetGoal: number;
   monthlyBudgetGoal: number;
 }

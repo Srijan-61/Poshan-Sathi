@@ -4,7 +4,7 @@ const AppError = require('../utils/AppError');
 const { deleteCloudinaryImage } = require('../utils/cloudinaryUtils');
 const nutritionCalculator = require('../utils/nutrition/index');
 
-// @desc    Get user profile + calculated daily requirements
+
 const getProfile = catchAsync(async (req, res, next) => {
   const user = await User.findById(req.user.id).select('-password');
   if (!user) return next(new AppError('User not found', 404));
@@ -69,8 +69,8 @@ const updateDietPreferences = catchAsync(async (req, res, next) => {
   const user = await User.findById(req.user.id);
   if (!user) return next(new AppError('User not found', 404));
 
-  const { dietType, allergies, foodsToAvoid, favoriteFoods } = req.body;
-  user.profile = { ...user.profile.toObject(), dietType, allergies, foodsToAvoid, favoriteFoods };
+  const { dietType } = req.body;
+  user.profile = { ...user.profile.toObject(), dietType };
   
   await user.save();
   res.status(200).json({ success: true, data: user });

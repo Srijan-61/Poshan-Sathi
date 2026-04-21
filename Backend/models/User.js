@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
 // Import modular subschemas
 const profileSchema = require('./schemas/profileSchema');
@@ -53,7 +54,11 @@ const userSchema = new mongoose.Schema({
   },
   profileUpdatedAt: {
     type: Date
-  }
+  },
+
+  // Password Reset
+  passwordResetToken: String,
+  passwordResetExpires: Date
 }, {
   timestamps: true  // createdAt, updatedAt
 });
@@ -100,6 +105,23 @@ userSchema.methods.checkProfileCompletion = function() {
   
   this.isProfileComplete = required.every(field => field !== null && field !== undefined);
   return this.isProfileComplete;
+};
+
+// Method to create a hashed password reset token
+userSchema.methods.createPasswordResetToken = function() {
+  const resetToken = crypto.randomBytes(32).toString('hex');
+
+  // Store HASHED token in DB (so a DB leak doesn't expose valid tokens)
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  // Token expires in 10 minutes
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+
+  // Return the UNHASHED token (this goes in the email link)
+  return resetToken;
 };
 
 module.exports = mongoose.model('User', userSchema);

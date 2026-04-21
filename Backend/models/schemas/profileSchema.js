@@ -55,27 +55,12 @@ const profileSchema = new mongoose.Schema({
     default: 'nonVegetarian'
   },
   
-  // Food Allergies & Intolerances
-  allergies: [{
-    type: String,
-    enum: ['none', 'dairy', 'eggs', 'fish', 'shellfish', 'nuts', 'peanuts', 'wheat', 'gluten', 'soy', 'other']
-  }],
-  
-  // Foods to Avoid & Favorites
-  foodsToAvoid: [String],
-  favoriteFoods: [String],
-  
   // Nested Subschemas
   healthGoals: healthGoalsSchema,
   nutrientGoals: nutrientGoalsSchema,
   
   // Budget Settings
   monthlyBudget: { type: Number, min: 0 },
-  budgetPriority: { type: String, enum: ['low', 'medium', 'high'], default: 'medium' },
-  
-  // Lifestyle Preferences
-  mealFrequency: { type: Number, min: 1, max: 10, default: 3 },
-  cookingTime: { type: String, enum: ['minimal', 'moderate', 'extensive'], default: 'moderate' },
   
   // Location
   location: {

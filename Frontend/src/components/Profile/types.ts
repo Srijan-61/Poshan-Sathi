@@ -1,3 +1,10 @@
+export interface CustomHealthTarget {
+  nutrient: string;
+  type: 'min' | 'max';
+  value: number;
+  label: string;
+}
+
 export interface ProfileData {
   name: string;
   age: number | "";
@@ -12,12 +19,13 @@ export interface ProfileData {
   };
   healthConditions: string[];
   profileImage?: string;
+  nutrientGoals?: {
+    customHealthTargets?: CustomHealthTarget[];
+  };
 }
 
 export interface DailyRequirements {
   calories: number;
-  bmr: number;
-  tdee: number;
   protein: number;
   carbs: number;
   fats: number;
@@ -36,4 +44,7 @@ export interface DailyRequirements {
   proteinRatio: number;
   carbRatio: number;
   fatRatio: number;
+  bmr: number;
+  tdee: number;
 }
+

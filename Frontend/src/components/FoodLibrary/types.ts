@@ -8,6 +8,8 @@ export interface Food {
   fats?: number;
   category?: string;
   image?: string;
+  name?: string;
+  owner?: string | null;
   micros?: {
     iron?: number;
     calcium?: number;

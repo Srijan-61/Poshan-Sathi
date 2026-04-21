@@ -1,5 +1,4 @@
-import React from "react";
-import { useTheme } from "../../context/ThemeContext";
+
 
 interface Props {
   searchTerm: string;
@@ -7,8 +6,6 @@ interface Props {
 }
 
 export default function FoodSearchBar({ searchTerm, setSearchTerm }: Props) {
-  const { isDark } = useTheme();
-
   return (
     <div className="relative">
       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-neutral-400">
@@ -18,9 +15,7 @@ export default function FoodSearchBar({ searchTerm, setSearchTerm }: Props) {
         id="food-library-search"
         type="text"
         className={`w-full pl-12 pr-12 py-4 border rounded-2xl focus:ring-2 focus:ring-green-500 outline-none transition-all shadow-sm text-lg ${
-          isDark 
-            ? "bg-neutral-900 border-neutral-700 text-white placeholder-neutral-500" 
-            : "bg-white border-neutral-200 text-neutral-900 placeholder-neutral-400"
+          "bg-white border-neutral-200 text-neutral-900 placeholder-neutral-400"
         }`}
         placeholder="Search for Dal Bhat, Momo..."
         value={searchTerm}

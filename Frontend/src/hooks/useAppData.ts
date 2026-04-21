@@ -8,6 +8,7 @@ export const useAppData = () => {
     const savedUser = localStorage.getItem('userInfo');
     return savedUser ? JSON.parse(savedUser) : null;
   });
+  const [profile, setProfile] = useState<any>(null);
   const [logs, setLogs] = useState<any[]>([]);
   const [foods, setFoods] = useState<any[]>([]);
   const [targets, setTargets] = useState<AnalyticsTargets>(DEFAULT_TARGETS);
@@ -32,10 +33,20 @@ export const useAppData = () => {
       setFoods(fRes.data);
       setLogs(lRes.data);
 
-      const profile = pRes.data?.profile || {};
+      const profileData = pRes.data?.profile || {};
+      setProfile(profileData);
+
+      // Keep localStorage in sync with the latest profileImage so the Nav avatar updates
+      if (profileData.profileImage) {
+        const stored = JSON.parse(localStorage.getItem('userInfo') || '{}');
+        if (stored.profileImage !== profileData.profileImage) {
+          stored.profileImage = profileData.profileImage;
+          localStorage.setItem('userInfo', JSON.stringify(stored));
+        }
+      }
       const reqs = pRes.data?.dailyRequirements || {};
-      const monthlyBudget = Number(profile.monthlyBudget) || DEFAULT_TARGETS.monthlyBudget;
-      const dailyBudget = Math.round(monthlyBudget / 30);
+      const monthlyBudget = profileData.monthlyBudget != null ? Number(profileData.monthlyBudget) : DEFAULT_TARGETS.monthlyBudget;
+      const dailyBudget = monthlyBudget > 0 ? Math.round(monthlyBudget / 30) : 0;
 
       setTargets({
         dailyBudget,
@@ -105,14 +116,28 @@ export const useAppData = () => {
     }
   };
 
+  // Updating a meal log's quantity
+  const handleUpdateLog = async (id: string, newQuantity: number) => {
+    try {
+      await API.patch(`/api/logs/${id}`, { quantity: newQuantity });
+      fetchData();
+      toast.success('Quantity updated!');
+    } catch (err: any) {
+      console.error('Error updating log:', err.response?.data?.message || err.message);
+      toast.error(err.response?.data?.message || 'Failed to update quantity');
+    }
+  };
+
   return {
     user,
     setUser,
+    profile,
     logs,
     foods,
     targets,
     fetchData,
     handleLog,
-    handleDeleteLog
+    handleDeleteLog,
+    handleUpdateLog
   };
 };

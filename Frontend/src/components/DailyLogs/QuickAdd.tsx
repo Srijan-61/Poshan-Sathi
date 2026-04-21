@@ -1,6 +1,5 @@
-import React from "react";
+
 import toast from "react-hot-toast";
-import { useTheme } from "../../context/ThemeContext";
 import type { Food } from "./types";
 
 interface QuickAddProps {
@@ -13,9 +12,7 @@ export default function QuickAdd({
   quickAddItems,
   foods,
   onLog
-}: QuickAddProps) {
-  const { isDark } = useTheme();
-  const heading = isDark ? "text-white" : "text-neutral-900";
+}: QuickAddProps) {  const heading = "text-neutral-900";
 
   return (
     <section className="flex flex-col gap-6 w-full">
@@ -38,9 +35,7 @@ export default function QuickAdd({
                 );
             }}
             className={`flex flex-col items-center gap-3 group p-4 rounded-3xl border transition-all ${
-              isDark
-                ? "bg-neutral-900 border-neutral-800 hover:border-green-700 hover:shadow-neutral-900/30"
-                : "bg-white border-neutral-100 hover:border-green-200 hover:shadow-md"
+              "bg-white border-neutral-100 hover:border-green-200 hover:shadow-md"
             }`}
           >
             <div className={`w-16 h-16 rounded-full overflow-hidden shadow-sm group-hover:scale-105 transition-transform duration-300 border-2 border-transparent group-hover:border-green-500`}>
@@ -50,7 +45,7 @@ export default function QuickAdd({
                 src={item.img}
               />
             </div>
-            <span className={`text-sm font-bold group-hover:text-green-600 ${isDark ? "text-neutral-300" : "text-neutral-700"}`}>
+            <span className={`text-sm font-bold group-hover:text-green-600 ${"text-neutral-700"}`}>
               {item.name}
             </span>
           </button>

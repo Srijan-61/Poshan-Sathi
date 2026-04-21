@@ -11,24 +11,26 @@ function escapeRegex(string) {
 }
 
 function toObjectId(id) {
+  if (!id) return null;
   if (id instanceof mongoose.Types.ObjectId) return id;
   try {
-    return new mongoose.Types.ObjectId(String(id));
+    return new mongoose.Types.ObjectId(id.toString());
   } catch {
-    return id;
+    return null;
   }
 }
 
 /**
  * Foods visible to the logged-in user: global catalog (no owner) + their own custom foods.
  */
-const accessibleFoodsFilter = (userId) => ({
-  $or: [
-    { owner: null },
-    { owner: { $exists: false } },
-    { owner: userId },
-  ],
-});
+const accessibleFoodsFilter = (userId) => {
+  if (!userId) {
+    return { owner: null };
+  }
+  return {
+    $or: [{ owner: null }, { owner: userId }],
+  };
+};
 
 const getFoods = catchAsync(async (req, res) => {
   const userId = toObjectId(req.user._id);
@@ -138,11 +140,12 @@ const getSmartRecommendations = catchAsync(async (req, res) => {
     0,
   );
 
-  const dailyBudget = user.dailyBudget || 500;
+  const monthlyBudget = user.monthlyBudget || 0;
+  const dailyBudget = monthlyBudget > 0 ? Math.round(monthlyBudget / 30) : 0;
   const dailyCalories = user.dailyCalories || 2000;
   const dailyProteinGoal = Math.round((dailyCalories * 0.3) / 4);
 
-  const remainingBudget = dailyBudget - spentToday;
+  const remainingBudget = dailyBudget > 0 ? dailyBudget - spentToday : Infinity;
   const remainingCalories = dailyCalories - eatenToday;
 
   const foods = await Food.find(accessibleFoodsFilter(toObjectId(req.user._id)));
@@ -201,7 +204,7 @@ const getSmartRecommendations = catchAsync(async (req, res) => {
       }
     }
 
-    if (spentToday > dailyBudget * 0.75 && remainingBudget > 0) {
+    if (dailyBudget > 0 && spentToday > dailyBudget * 0.75 && remainingBudget > 0) {
       insights.push({
         id: "budget-warning",
         title: "Budget Exceeded Soon",
@@ -239,4 +242,51 @@ const getSmartRecommendations = catchAsync(async (req, res) => {
   });
 });
 
-module.exports = { getFoods, createCustomFood, getSmartRecommendations };
+const updateCustomFood = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const {
+    owner: _ignoreOwner,
+    _id: _ignoreId,
+    __v: _ignoreV,
+    ...body
+  } = req.body;
+
+  if (body.food_name && String(body.food_name).trim() === "") {
+    throw new AppError("Food name cannot be empty", 400);
+  }
+
+  if (body.micros) {
+    body.micros = normalizeMicros(body.micros);
+  }
+
+  const food = await Food.findOne({ _id: id, owner: req.user._id });
+
+  if (!food) {
+    throw new AppError("Custom food not found or you do not have permission to edit it", 404);
+  }
+
+  Object.assign(food, body);
+  await food.save();
+
+  res.status(200).json(food);
+});
+
+const deleteCustomFood = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  
+  const food = await Food.findOneAndDelete({ _id: id, owner: req.user._id });
+
+  if (!food) {
+    throw new AppError("Custom food not found or you do not have permission to delete it", 404);
+  }
+
+  res.status(200).json({ success: true, message: "Custom food deleted successfully" });
+});
+
+module.exports = {
+  getFoods,
+  createCustomFood,
+  updateCustomFood,
+  deleteCustomFood,
+  getSmartRecommendations,
+};

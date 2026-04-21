@@ -1,5 +1,4 @@
 import React from "react";
-import { useTheme } from "../../context/ThemeContext";
 import type { Ingredient } from "./types";
 
 interface IngredientSearchProps {
@@ -31,134 +30,96 @@ export default function IngredientSearch({
   selectItem,
   addItemToRecipe
 }: IngredientSearchProps) {
-  const { isDark } = useTheme();
-  const heading = isDark ? "text-white" : "text-neutral-900";
-  const subtext = isDark ? "text-neutral-400" : "text-neutral-500";
-  const inputCls = isDark
-    ? "bg-neutral-800 border-neutral-700 text-white placeholder-neutral-500"
-    : "bg-neutral-50 border-neutral-200 text-neutral-900 placeholder-neutral-400";
+ 
+  const heading = "text-neutral-900";
+  const subtext = "text-neutral-500";
+  const inputCls = "bg-neutral-50 border-neutral-200 text-neutral-900 placeholder-neutral-400";
 
   return (
-    <div className="flex flex-wrap gap-2 mb-6 items-stretch" ref={dropdownRef}>
-      <div className="flex-1 min-w-[200px] relative">
+    <div className="flex flex-wrap gap-3 mb-8 items-stretch" ref={dropdownRef}>
+      {/* Search Input Container - Must be Relative for Absolute Dropdown */}
+      <div className="flex-1 min-w-[260px] relative">
         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-neutral-400">
           <span className="material-symbols-outlined text-xl">search</span>
         </div>
         <input
-          className={`w-full border rounded-xl py-4 pl-12 pr-4 text-lg font-medium focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all ${inputCls}`}
-          placeholder="Search ingredients..."
+          className={`w-full border rounded-2xl py-4 pl-12 pr-4 text-lg font-bold focus:ring-4 focus:ring-green-500/10 focus:border-green-500 outline-none transition-all shadow-sm ${inputCls}`}
+          placeholder="Search ingredients (e.g. Rice, Dal)..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           autoComplete="off"
         />
 
+        {/* FLOATING DROPDOWN - FIXED WITH Z-50 AND SOLID BG */}
         {(searchResults.length > 0 || searchLoading) && searchTerm.trim() !== "" && (
           <div
-            className={`absolute top-full left-0 right-0 z-20 mt-2 flex max-h-72 flex-col overflow-hidden rounded-xl border shadow-2xl backdrop-blur-md ${
-              isDark
-                ? "border-neutral-600/80 bg-neutral-900/85"
-                : "border-neutral-200/90 bg-white/90"
-            }`}
+            className="absolute top-full left-0 right-0 z-50 mt-3 flex max-h-80 flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] animate-in fade-in slide-in-from-top-2 duration-200"
           >
             {forceGlobal && (
-              <div
-                className={`shrink-0 border-b px-3 py-2 text-center text-xs font-semibold ${
-                  isDark
-                    ? "border-neutral-700 bg-neutral-800/90 text-sky-300"
-                    : "border-sky-100 bg-sky-50/95 text-sky-800"
-                }`}
-              >
-                Including global foods from Edamam
+              <div className="shrink-0 border-b border-sky-100 bg-sky-50 px-4 py-2 text-center text-[10px] font-black uppercase tracking-widest text-sky-700">
+                🌐 Searching Global Database (Edamam)
               </div>
             )}
-            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-              {searchLoading && searchResults.length === 0 && (
-                <div className={`px-4 py-4 text-sm font-medium ${subtext}`}>
-                  Searching…
+            
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain divide-y divide-neutral-100">
+              {searchLoading && (
+                <div className="px-5 py-6 flex items-center gap-3">
+                  <div className="w-5 h-5 border-2 border-green-600 border-t-transparent rounded-full animate-spin"></div>
+                  <span className={`text-sm font-bold ${subtext}`}>Finding ingredients...</span>
                 </div>
               )}
+              
+              {!searchLoading && searchResults.length === 0 && (
+                <div className="px-5 py-6 text-sm font-bold text-neutral-400">
+                  No results found for "{searchTerm}"
+                </div>
+              )}
+
               {searchResults.map((item) => (
                 <div
                   key={`${item.source ?? "unknown"}-${item._id}`}
                   onClick={() => selectItem(item)}
-                  className={`flex cursor-pointer items-center gap-3 border-b px-4 py-3 transition-colors last:border-b-0 ${
-                    isDark
-                      ? "border-neutral-700/80 hover:bg-neutral-700/90"
-                      : "border-neutral-100 hover:bg-neutral-100"
-                  }`}
+                  className="flex cursor-pointer items-center justify-between gap-4 px-5 py-4 transition-all hover:bg-neutral-50 active:bg-neutral-100"
                 >
-                  <span className={`min-w-0 flex-1 truncate text-base font-semibold ${heading}`}>
-                    {item.name}
-                  </span>
-                  <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
+                  <div className="flex flex-col min-w-0">
+                    <span className={`truncate text-base font-bold ${heading}`}>
+                      {item.name}
+                    </span>
+                    <span className="text-[10px] font-bold text-orange-500 uppercase tracking-wider">
+                      {Math.round(item.calories)} kcal / {item.type === "raw" ? "100g" : "unit"}
+                    </span>
+                  </div>
+
+                  <div className="flex shrink-0 items-center gap-2">
                     {item.source === "local" && (
-                      <span
-                        className={`rounded-md px-2 py-0.5 text-[10px] font-bold tracking-wide ${
-                          isDark
-                            ? "bg-emerald-950/80 text-emerald-300 ring-1 ring-emerald-700/50"
-                            : "bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200/80"
-                        }`}
-                        title="From your Poshan Sathi database"
-                      >
-                        🇳🇵 Local
+                      <span className="rounded-md bg-emerald-50 px-2 py-0.5 text-[10px] font-black uppercase tracking-tighter text-emerald-700 border border-emerald-100">
+                        Local
                       </span>
                     )}
                     {item.source === "edamam" && (
-                      <span
-                        className={`rounded-md px-2 py-0.5 text-[10px] font-bold tracking-wide ${
-                          isDark
-                            ? "bg-sky-950/80 text-sky-300 ring-1 ring-sky-700/50"
-                            : "bg-sky-50 text-sky-800 ring-1 ring-sky-200/80"
-                        }`}
-                        title="Edamam Food Database"
-                      >
+                      <span className="rounded-md bg-sky-50 px-2 py-0.5 text-[10px] font-black uppercase tracking-tighter text-sky-700 border border-sky-100">
                         Global
                       </span>
                     )}
                     {item.source === "recipe" && (
-                      <span
-                        className={`rounded-md px-2 py-0.5 text-[10px] font-bold tracking-wide ${
-                          isDark
-                            ? "bg-amber-950/70 text-amber-200 ring-1 ring-amber-800/50"
-                            : "bg-amber-50 text-amber-900 ring-1 ring-amber-200/80"
-                        }`}
-                        title="Your saved custom food"
-                      >
+                      <span className="rounded-md bg-amber-50 px-2 py-0.5 text-[10px] font-black uppercase tracking-tighter text-amber-900 border border-amber-100">
                         Recipe
                       </span>
                     )}
-                    <span
-                      className={`rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-                        isDark
-                          ? "bg-neutral-800 text-neutral-400 ring-1 ring-neutral-600"
-                          : "bg-neutral-100 text-neutral-600 ring-1 ring-neutral-200"
-                      }`}
-                    >
-                      {item.type}
-                    </span>
                   </div>
                 </div>
               ))}
             </div>
-            {!forceGlobal && searchTerm.trim() !== "" && (
-              <div
-                className={`sticky bottom-0 shrink-0 border-t p-2 backdrop-blur-md ${
-                  isDark
-                    ? "border-neutral-600 bg-neutral-900/95"
-                    : "border-neutral-200 bg-white/95"
-                }`}
-              >
+
+            {!forceGlobal && !searchLoading && searchTerm.trim() !== "" && (
+              <div className="shrink-0 border-t border-neutral-100 p-3 bg-neutral-50/50">
                 <button
                   type="button"
                   onClick={() => setForceGlobal(true)}
-                  className={`flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-bold transition-colors ${
-                    isDark
-                      ? "bg-sky-950/80 text-sky-200 ring-1 ring-sky-700/60 hover:bg-sky-900/90"
-                      : "bg-sky-50 text-sky-900 ring-1 ring-sky-200 hover:bg-sky-100"
-                  }`}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-white border border-neutral-200 px-4 py-3 text-xs font-black uppercase tracking-widest text-neutral-600 shadow-sm transition-all hover:bg-white hover:border-sky-300 hover:text-sky-600 active:scale-[0.98]"
                 >
                   <span className="material-symbols-outlined text-[18px]">public</span>
-                  Search global foods (Edamam)
+                  Expand search to Global
                 </button>
               </div>
             )}
@@ -166,27 +127,25 @@ export default function IngredientSearch({
         )}
       </div>
 
-      <div
-        className={`flex items-center gap-1 rounded-xl border px-3 ${
-          isDark ? "bg-neutral-800 border-neutral-700" : "bg-neutral-50 border-neutral-200"
-        }`}
-      >
+      {/* Quantity Selector */}
+      <div className="flex items-center gap-1 rounded-2xl border border-neutral-200 bg-neutral-50 px-4 shadow-sm">
         <input
           type="number"
           value={isNaN(qty) ? "" : qty}
           onChange={(e) => setQty(parseFloat(e.target.value))}
-          className={`w-16 bg-transparent py-4 text-center text-lg font-bold outline-none ${heading}`}
+          className={`w-16 bg-transparent py-4 text-center text-xl font-black outline-none ${heading}`}
         />
-        <span className={`pr-1 text-xs font-bold uppercase tracking-wide ${subtext}`}>
+        <span className={`pr-1 text-xs font-black uppercase tracking-widest ${subtext}`}>
           {selectedItem?.type === "cooked" ? "unit" : "g"}
         </span>
       </div>
 
+      {/* Add Button */}
       <button
         type="button"
         onClick={addItemToRecipe}
         disabled={!selectedItem}
-        className="flex min-h-[3.5rem] min-w-[3.5rem] items-center justify-center rounded-xl bg-green-600 px-4 font-bold text-white shadow-md transition-all hover:bg-green-700 disabled:bg-neutral-400 disabled:shadow-none"
+        className="flex min-h-[3.5rem] min-w-[3.5rem] items-center justify-center rounded-2xl bg-green-600 px-6 font-black text-white shadow-lg shadow-green-600/20 transition-all hover:bg-green-700 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 disabled:bg-neutral-200 disabled:text-neutral-400 disabled:shadow-none disabled:cursor-not-allowed"
       >
         <span className="material-symbols-outlined text-2xl">add</span>
       </button>

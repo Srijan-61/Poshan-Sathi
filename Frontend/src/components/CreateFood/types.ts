@@ -19,6 +19,9 @@ export interface Ingredient {
     sugar?: number;
     sodium?: number;
   };
+  owner?: string | null;
+  ingredients?: any[];
+  category?: string;
 }
 
 export interface AddedItem {
@@ -26,6 +29,8 @@ export interface AddedItem {
   qty: number;
   cals: number;
   cost: number;
+  /** Nepali/voice alias that matched this ingredient, shown in brackets */
+  matchedAlias?: string;
 }
 
 export interface Props {

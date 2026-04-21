@@ -1,5 +1,4 @@
 import React from "react";
-import { useTheme } from "../../context/ThemeContext";
 import type { ProfileData } from "./types";
 
 interface Props {
@@ -10,20 +9,25 @@ interface Props {
 }
 
 export default function ProfileHeader({ profile, isUploading, imagePreview, handleImageChange }: Props) {
-  const { isDark } = useTheme();
+  const [showOptions, setShowOptions] = React.useState(false);
 
   const t = {
-    heading: isDark ? "text-white" : "text-neutral-900",
-    subtext: isDark ? "text-neutral-400" : "text-neutral-500",
-    card: isDark ? "bg-neutral-900 border-neutral-800 shadow-none" : "bg-white border-neutral-100 shadow-sm",
-    avatarBg: isDark ? "bg-neutral-800 text-neutral-500" : "bg-neutral-100 text-neutral-400",
-    tagBlueBg: isDark ? "bg-blue-900/40 text-blue-300" : "bg-blue-50 text-blue-600",
-    tagGreenBg: isDark ? "bg-green-900/40 text-green-300" : "bg-green-50 text-green-600",
+    heading: "text-neutral-900",
+    subtext: "text-neutral-500",
+    card: "bg-white border-neutral-100 shadow-sm",
+    avatarBg: "bg-neutral-100 text-neutral-400",
+    tagBlueBg: "bg-blue-50 text-blue-600",
+    tagGreenBg: "bg-green-50 text-green-600",
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("userInfo");
+    window.location.href = "/login";
   };
 
   return (
     <>
-      <section className="flex items-start justify-between gap-4">
+      <section className="flex items-start justify-between gap-4 relative">
         <div className="flex flex-col gap-2">
           <h1 className={`text-3xl font-extrabold tracking-tight ${t.heading}`}>
             Your Profile
@@ -32,13 +36,40 @@ export default function ProfileHeader({ profile, isUploading, imagePreview, hand
             Update your metrics to recalculate your daily nutrition needs.
           </p>
         </div>
+
+        <div className="relative">
+          <button
+            onClick={() => setShowOptions(!showOptions)}
+            className="p-2 rounded-full hover:bg-neutral-100 transition-colors text-neutral-500"
+          >
+            <span className="material-symbols-outlined">settings</span>
+          </button>
+
+          {showOptions && (
+            <>
+              <div 
+                className="fixed inset-0 z-[60]" 
+                onClick={() => setShowOptions(false)} 
+              />
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-neutral-100 p-2 z-[70] animate-in fade-in zoom-in duration-200">
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-colors font-semibold"
+                >
+                  <span className="material-symbols-outlined text-[20px]">logout</span>
+                  Logout
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </section>
 
       <section
         className={`flex flex-col items-center md:flex-row gap-6 rounded-3xl p-6 border transition-colors duration-300 ${t.card}`}
       >
         <div className="relative group">
-          <div className={`w-32 h-32 rounded-full overflow-hidden border-4 ${isDark ? "border-neutral-800" : "border-neutral-50"} shadow-md ${isUploading ? 'opacity-50' : 'opacity-100'} transition-opacity`}>
+          <div className={`w-32 h-32 rounded-full overflow-hidden border-4 ${"border-neutral-50"} shadow-md ${isUploading ? 'opacity-50' : 'opacity-100'} transition-opacity`}>
             {imagePreview || profile.profileImage ? (
               <img 
                 src={imagePreview || profile.profileImage} 

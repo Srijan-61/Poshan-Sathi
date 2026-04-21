@@ -1,11 +1,73 @@
 @import "tailwindcss";
-@custom-variant dark (&:where(.dark, .dark *));
 
-/* Smooth transitions when toggling dark mode */
-html {
-  transition: background-color 0.3s ease, color 0.3s ease;
+/* 
+  Modern Fresh Health Palette
+  ---------------------------
+  Background: Very light mint/sage for a fresh look.
+  Surface: Pure white for maximum clarity.
+  Primary: Emerald green for a healthy feel.
+*/
+:root {
+  --bg-primary: #f4f9f4; /* Subtle Sage Tint */
+  --surface-layer: #ffffff;
+  --text-main: #1a202c;
+  --text-sub: #4a5568;
+  --accent-primary: #10b981; /* Emerald 500 */
+  --accent-hover: #059669; /* Emerald 600 */
+  --border-light: rgba(0, 0, 0, 0.04);
+  
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  color-scheme: light;
 }
-html.dark {
-  background-color: #0a0a0a; /* neutral-950 */
-  color-scheme: dark;
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-color: var(--bg-primary) !important;
+  color: var(--text-main);
+  font-family: 'Manrope', sans-serif;
+}
+
+/* Glassmorphism for a "Lighter" Nav Bar feel */
+.glass-nav {
+  background-color: rgba(255, 255, 255, 0.8) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.glass-mobile-nav {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border-light);
+}
+
+/* Premium Card Shadows */
+.premium-card {
+  background: var(--surface-layer);
+  border: 1px solid var(--border-light);
+  box-shadow: 0 4px 20px -6px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.premium-card:hover {
+  box-shadow: 0 10px 30px -8px rgba(0, 0, 0, 0.1);
+}
+
+/* Custom scrollbar to match the fresh theme */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.15);
 }

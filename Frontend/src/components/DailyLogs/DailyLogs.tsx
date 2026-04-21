@@ -10,7 +10,7 @@ import QuickAdd from "./QuickAdd";
 import TodaysMeals from "./TodaysMeals";
 import PreviousLogs from "./PreviousLogs";
 
-const DailyLogs: React.FC<Props> = ({ logs, foods, onLog, onDelete }) => {
+const DailyLogs: React.FC<Props> = ({ logs, foods, onLog, onDelete, onUpdateQuantity }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -144,8 +144,8 @@ const DailyLogs: React.FC<Props> = ({ logs, foods, onLog, onDelete }) => {
         if (userSaidToken) matchedTokensCount++;
       });
 
-      let accuracy = matchedTokensCount / foodTokens.length;
-      let finalScore = accuracy + foodTokens.length * 0.1;
+      const accuracy = matchedTokensCount / foodTokens.length;
+      const finalScore = accuracy + foodTokens.length * 0.1;
 
       if (finalScore > bestScore && accuracy >= 0.5) {
         bestScore = finalScore;
@@ -219,6 +219,7 @@ const DailyLogs: React.FC<Props> = ({ logs, foods, onLog, onDelete }) => {
           dailyGoal={dailyGoal}
           getFoodImage={getFoodImage}
           onDelete={onDelete}
+          onUpdateQuantity={onUpdateQuantity}
         />
 
         <PreviousLogs 

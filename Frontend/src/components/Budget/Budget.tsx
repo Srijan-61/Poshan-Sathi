@@ -8,7 +8,7 @@ import WeeklyTrendChart from "./WeeklyTrendChart";
 import RecentExpenses from "./RecentExpenses";
 import BudgetHistory from "./BudgetHistory";
 
-const Budget: React.FC<BudgetProps> = ({ dailyBudgetGoal, monthlyBudgetGoal }) => {
+const Budget: React.FC<BudgetProps> = ({ monthlyBudgetGoal }) => {
   const [logs, setLogs] = useState<Log[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -70,8 +70,9 @@ const Budget: React.FC<BudgetProps> = ({ dailyBudgetGoal, monthlyBudgetGoal }) =
   const todaySpent = dailyLogs.reduce((sum, log) => sum + log.cost, 0);
   const monthSpent = monthlyLogs.reduce((sum, log) => sum + log.cost, 0);
 
-  const dailyPercent = Math.min((todaySpent / Math.max(dailyBudgetGoal, 1)) * 100, 100);
-  const monthlyPercent = Math.min((monthSpent / Math.max(monthlyBudgetGoal, 1)) * 100, 100);
+  const monthlyPercent = monthlyBudgetGoal > 0
+    ? Math.min((monthSpent / monthlyBudgetGoal) * 100, 100)
+    : 0;
 
   // --- 7-Day Chart Data ---
   const last7DaysData = Array.from({ length: 7 }).map((_, i) => {
@@ -150,8 +151,6 @@ const Budget: React.FC<BudgetProps> = ({ dailyBudgetGoal, monthlyBudgetGoal }) =
 
       <FinancialSummary
         todaySpent={todaySpent}
-        dailyBudgetGoal={dailyBudgetGoal}
-        dailyPercent={dailyPercent}
         monthSpent={monthSpent}
         monthlyBudgetGoal={monthlyBudgetGoal}
         monthlyPercent={monthlyPercent}
@@ -159,7 +158,6 @@ const Budget: React.FC<BudgetProps> = ({ dailyBudgetGoal, monthlyBudgetGoal }) =
 
       <WeeklyTrendChart
         last7DaysData={last7DaysData}
-        dailyBudgetGoal={dailyBudgetGoal}
       />
 
       <RecentExpenses logs={logs} />
@@ -172,7 +170,6 @@ const Budget: React.FC<BudgetProps> = ({ dailyBudgetGoal, monthlyBudgetGoal }) =
         historyTotalSpent={historyTotalSpent}
         monthlyBudgetGoal={monthlyBudgetGoal}
         historyDailyAvg={historyDailyAvg}
-        dailyBudgetGoal={dailyBudgetGoal}
         historyTotalCalories={historyTotalCalories}
         historyChartData={historyChartData}
         historyLogs={historyLogs}

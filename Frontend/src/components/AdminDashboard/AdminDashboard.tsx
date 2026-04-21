@@ -46,8 +46,9 @@ export default function AdminDashboard() {
   const [foodImageFile, setFoodImageFile] = useState<File | null>(null);
 
   const [ingredientForm, setIngredientForm] = useState<IngredientFormState>({
-    name: "", caloriesPer100g: "", proteinPer100g: "", carbsPer100g: "", fatPer100g: "", imageUrl: ""
+    name: "", calories: "", protein: "", carbs: "", fats: "", imageUrl: ""
   });
+  const [editingIngredientId, setEditingIngredientId] = useState<string | null>(null);
   const [ingredientImageMode, setIngredientImageMode] = useState<"upload" | "url">("upload");
   const [ingredientImageFile, setIngredientImageFile] = useState<File | null>(null);
 
@@ -110,7 +111,7 @@ export default function AdminDashboard() {
       }
 
       const token = localStorage.getItem("userInfo") ? JSON.parse(localStorage.getItem("userInfo")!).token : "";
-      const config = { headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" } };
+      const config = { headers: { Authorization: `Bearer ${token}` } };
       
       if (editingFoodId) {
         await axios.put(`/api/admin/foods/${editingFoodId}`, formData, config);
@@ -214,6 +215,28 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleOpenIngredientModal = (ingredient: Ingredient | null = null) => {
+    if (ingredient) {
+      setEditingIngredientId(ingredient._id);
+      setIngredientForm({
+        name: ingredient.name || "",
+        calories: String(ingredient.calories ?? ""),
+        protein: String(ingredient.protein ?? ""),
+        carbs: String(ingredient.carbs ?? ""),
+        fats: String(ingredient.fats ?? ""),
+        imageUrl: ingredient.image || ""
+      });
+      setIngredientImageMode(ingredient.image && ingredient.image.startsWith('http') ? 'url' : 'upload');
+      setIngredientImageFile(null);
+    } else {
+      setEditingIngredientId(null);
+      setIngredientForm({ name: "", calories: "", protein: "", carbs: "", fats: "", imageUrl: "" });
+      setIngredientImageMode('upload');
+      setIngredientImageFile(null);
+    }
+    setIsIngredientModalOpen(true);
+  };
+
   // --- INGREDIENT HANDLERS ---
   const handleIngredientSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -221,10 +244,10 @@ export default function AdminDashboard() {
     try {
       const formData = new FormData();
       formData.append("name", ingredientForm.name);
-      formData.append("calories", ingredientForm.caloriesPer100g);
-      formData.append("protein", ingredientForm.proteinPer100g);
-      formData.append("carbs", ingredientForm.carbsPer100g);
-      formData.append("fats", ingredientForm.fatPer100g);
+      formData.append("calories", ingredientForm.calories);
+      formData.append("protein", ingredientForm.protein);
+      formData.append("carbs", ingredientForm.carbs);
+      formData.append("fats", ingredientForm.fats);
       
       if (ingredientImageMode === "upload" && ingredientImageFile) {
         formData.append("image", ingredientImageFile);
@@ -232,17 +255,25 @@ export default function AdminDashboard() {
         formData.append("imageUrl", ingredientForm.imageUrl);
       }
 
-      await axios.post("/api/admin/ingredients", formData, {
-        headers: { Authorization: `Bearer ${(user as any)?.token || JSON.parse(localStorage.getItem("userInfo")!).token}`, "Content-Type": "multipart/form-data" }
-      });
-      toast.success("Ingredient added successfully");
+      const token = localStorage.getItem("userInfo") ? JSON.parse(localStorage.getItem("userInfo")!).token : "";
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+
+      if (editingIngredientId) {
+        await axios.put(`/api/admin/ingredients/${editingIngredientId}`, formData, config);
+        toast.success("Ingredient updated successfully");
+      } else {
+        await axios.post("/api/admin/ingredients", formData, config);
+        toast.success("Ingredient added successfully");
+      }
+      
       setIsIngredientModalOpen(false);
-      setIngredientForm({ name: "", caloriesPer100g: "", proteinPer100g: "", carbsPer100g: "", fatPer100g: "", imageUrl: "" });
+      setIngredientForm({ name: "", calories: "", protein: "", carbs: "", fats: "", imageUrl: "" });
+      setEditingIngredientId(null);
       
       const iRes = await axios.get("/api/admin/ingredients", getHeaders());
       setIngredientsList(iRes.data.ingredients || []);
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Error adding ingredient");
+      toast.error(err.response?.data?.message || `Error ${editingIngredientId ? 'updating' : 'adding'} ingredient`);
     } finally {
       setIsSubmitting(false);
     }
@@ -267,17 +298,17 @@ export default function AdminDashboard() {
   const pageTitle = activeTab === "users" ? "User Management" : activeTab === "foods" ? "Food Library" : "Ingredient Database";
   const primaryButtonAction = activeTab === "users" ? null : 
     activeTab === "foods" ? () => handleOpenFoodModal() :
-    () => setIsIngredientModalOpen(true);
+    () => handleOpenIngredientModal();
   const primaryButtonLabel = activeTab === "users" ? null : activeTab === "foods" ? "Add New Food" : "Add Ingredient";
 
   // Data calculation for pagination
   const currentData = activeTab === "users" ? usersList : activeTab === "foods" ? foodsList : ingredientsList;
   const filteredDataLength = activeTab === "users" 
-    ? (currentData as User[]).filter(u => (u.name || "").toLowerCase().includes(searchQuery.toLowerCase()) || (u.email || "").toLowerCase().includes(searchQuery.toLowerCase())).length 
+    ? (currentData as User[]).filter(u => (u.email || "").toLowerCase().includes(searchQuery.toLowerCase())).length 
     : (currentData as any[]).filter(item => (item.food_name || item.name || "").toLowerCase().includes(searchQuery.toLowerCase())).length;
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#fafafa] flex font-sans text-neutral-900 pointer-events-auto">
+    <div className="fixed inset-0 z-50 bg-[#f4f9f4] flex font-sans text-neutral-900 pointer-events-auto">
       
       <Sidebar 
         user={user}
@@ -338,6 +369,7 @@ export default function AdminDashboard() {
                   searchQuery={searchQuery}
                   currentPage={currentPage}
                   itemsPerPage={itemsPerPage}
+                  onEdit={handleOpenIngredientModal}
                   deleteIngredient={deleteIngredient}
                 />
               )}
@@ -370,6 +402,7 @@ export default function AdminDashboard() {
       <IngredientModal 
         isIngredientModalOpen={isIngredientModalOpen}
         setIsIngredientModalOpen={setIsIngredientModalOpen}
+        editingIngredientId={editingIngredientId}
         ingredientForm={ingredientForm}
         setIngredientForm={setIngredientForm}
         handleIngredientSubmit={handleIngredientSubmit}

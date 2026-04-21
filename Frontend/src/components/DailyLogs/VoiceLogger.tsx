@@ -145,12 +145,12 @@ const VoiceLogger: React.FC<Props> = ({ foodLibrary, onLog }) => {
       // Candidate "Chicken Momo": 1/2 match (50%) -> Score: 0.5
       // Candidate "Jhol Momo": 2/2 match (100%) -> Score: 1.0
 
-      let accuracy = matchedTokensCount / foodTokens.length;
+      const accuracy = matchedTokensCount / foodTokens.length;
 
       // SPECIFICITY BOOST:
       // If two foods have 100% accuracy, prefer the LONGER one.
       // "Jhol Momo" (2 words) > "Momo" (1 word)
-      let finalScore = accuracy + foodTokens.length * 0.1;
+      const finalScore = accuracy + foodTokens.length * 0.1;
 
       // Log for debugging (Check console to see the race!)
       if (accuracy > 0.5) {

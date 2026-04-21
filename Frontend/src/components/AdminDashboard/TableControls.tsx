@@ -1,5 +1,5 @@
-import React from "react";
-import { Search, Filter } from "lucide-react";
+
+import { Search } from "lucide-react";
 
 interface TableControlsProps {
   searchQuery: string;
@@ -23,12 +23,6 @@ export default function TableControls({
           placeholder="Search items by name..." 
           className="pl-10 pr-4 py-2 bg-neutral-50 border border-neutral-200 rounded-lg text-sm w-72 focus:outline-none focus:ring-2 focus:ring-[#00a86b]/20 focus:border-[#00a86b] transition-all"
         />
-      </div>
-      <div className="flex gap-3">
-        <button className="flex items-center space-x-2 px-4 py-2 text-sm font-semibold text-neutral-700 bg-white border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors">
-          <Filter size={16} />
-          <span>Filter</span>
-        </button>
       </div>
     </div>
   );

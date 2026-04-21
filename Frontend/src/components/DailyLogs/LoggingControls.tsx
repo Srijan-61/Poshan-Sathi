@@ -1,5 +1,4 @@
 import React from "react";
-import { useTheme } from "../../context/ThemeContext";
 import type { Food } from "./types";
 
 interface LoggingControlsProps {
@@ -27,14 +26,10 @@ export default function LoggingControls({
   searchResults,
   onLog
 }: LoggingControlsProps) {
-  const { isDark } = useTheme();
-
-  const card = isDark ? "bg-neutral-900 border-neutral-800" : "bg-white border-neutral-100";
-  const heading = isDark ? "text-white" : "text-neutral-900";
-  const subtext = isDark ? "text-neutral-400" : "text-neutral-500";
-  const inputCls = isDark
-    ? "bg-neutral-800 border-neutral-700 text-white placeholder-neutral-500"
-    : "bg-neutral-50 border-neutral-200 text-neutral-900 placeholder-neutral-400";
+  const card = "bg-white border-neutral-100";
+  const heading = "text-neutral-900";
+  const subtext = "text-neutral-500";
+  const inputCls = "bg-neutral-50 border-neutral-200 text-neutral-900 placeholder-neutral-400";
 
   return (
     <section className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
@@ -43,8 +38,8 @@ export default function LoggingControls({
         onClick={!isListening ? handleVoiceLogClick : undefined}
         className={`rounded-[2rem] p-10 border shadow-sm transition-all duration-300 flex flex-col items-center justify-center text-center gap-6 h-full min-h-[300px] cursor-pointer group hover:-translate-y-1
           ${isListening
-            ? isDark ? "bg-green-900/20 border-green-800" : "bg-green-50 border-green-200"
-            : isDark ? "bg-neutral-900 border-neutral-800 hover:shadow-neutral-900/50" : "bg-white border-neutral-100 hover:shadow-lg"
+            ? "bg-green-50 border-green-200"
+            : "bg-white border-neutral-100 hover:shadow-lg"
           }
         `}
       >
@@ -52,7 +47,7 @@ export default function LoggingControls({
           className={`w-24 h-24 rounded-full flex items-center justify-center transition-all duration-300
           ${isListening
             ? "bg-green-500 text-white animate-pulse"
-            : isDark ? "bg-green-900/30 text-green-400 group-hover:scale-110" : "bg-green-50 text-green-600 group-hover:scale-110"
+            : "bg-green-50 text-green-600 group-hover:scale-110"
           }
         `}
         >
@@ -73,7 +68,7 @@ export default function LoggingControls({
       {/* Manual Log */}
       <div className={`rounded-[2rem] p-10 border shadow-sm transition-all duration-300 flex flex-col h-full min-h-[300px] justify-between relative ${card}`}>
         <div className="flex items-center gap-5">
-          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${isDark ? "bg-neutral-800 text-neutral-400" : "bg-neutral-50 text-neutral-600"}`}>
+          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${"bg-neutral-50 text-neutral-600"}`}>
             <span className="material-symbols-outlined text-2xl">
               keyboard
             </span>
@@ -106,13 +101,13 @@ export default function LoggingControls({
           />
 
           {isDropdownOpen && (
-            <div className={`absolute z-50 w-full mt-2 border rounded-2xl shadow-xl overflow-hidden max-h-64 overflow-y-auto ${isDark ? "bg-neutral-800 border-neutral-700" : "bg-white border-neutral-200"}`}>
+            <div className={`absolute z-50 w-full mt-2 border rounded-2xl shadow-xl overflow-hidden max-h-64 overflow-y-auto ${"bg-white border-neutral-200"}`}>
               {searchResults.length > 0 ? (
-                <ul className={`divide-y ${isDark ? "divide-neutral-700" : "divide-neutral-100"}`}>
+                <ul className={`divide-y ${"divide-neutral-100"}`}>
                   {searchResults.map((food) => (
                     <li
                       key={food._id}
-                      className={`flex items-center justify-between p-4 cursor-pointer transition-colors ${isDark ? "hover:bg-neutral-700" : "hover:bg-neutral-50"}`}
+                      className={`flex items-center justify-between p-4 cursor-pointer transition-colors ${"hover:bg-neutral-50"}`}
                       onClick={() => {
                         onLog(food, 1);
                         setSearchTerm("");
@@ -121,9 +116,9 @@ export default function LoggingControls({
                     >
                       <div className="flex items-center gap-3">
                         {food.image ? (
-                          <img src={food.image} className={`w-10 h-10 rounded-full object-cover border ${isDark ? "border-neutral-700" : "border-neutral-100"}`} alt={food.food_name} />
+                          <img src={food.image} className={`w-10 h-10 rounded-full object-cover border ${"border-neutral-100"}`} alt={food.food_name} />
                         ) : (
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isDark ? "bg-neutral-700 text-neutral-400" : "bg-neutral-100 text-neutral-500"}`}>
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${"bg-neutral-100 text-neutral-500"}`}>
                             <span className="material-symbols-outlined text-sm">local_dining</span>
                           </div>
                         )}
@@ -136,7 +131,7 @@ export default function LoggingControls({
                           </span>
                         </div>
                       </div>
-                      <button className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${isDark ? "bg-green-900/30 text-green-400 hover:bg-green-600 hover:text-white" : "bg-green-50 text-green-600 hover:bg-green-600 hover:text-white"}`}>
+                      <button className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${"bg-green-50 text-green-600 hover:bg-green-600 hover:text-white"}`}>
                         <span className="material-symbols-outlined text-sm">
                           add
                         </span>

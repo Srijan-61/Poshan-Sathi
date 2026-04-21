@@ -106,7 +106,7 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ onLogin }) => {
   };
 
   return (
-    <main className="flex min-h-screen w-full bg-neutral-50 font-sans absolute top-0 left-0 right-0 bottom-0 z-50">
+    <main className="flex min-h-screen w-full bg-[#f4f9f4] font-sans absolute top-0 left-0 right-0 bottom-0 z-50">
       {/* Left Panel: Brand & Visuals */}
       <section className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-black">
         <div className="absolute inset-0 z-0">
@@ -136,7 +136,7 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ onLogin }) => {
       </section>
 
       {/* Right Panel: Form Content */}
-      <section className="w-full lg:w-1/2 flex flex-col bg-white min-h-screen p-6 md:p-12 lg:p-20 overflow-y-auto">
+      <section className="w-full lg:w-1/2 flex flex-col bg-[#f4f9f4] min-h-screen p-6 md:p-12 lg:p-20 overflow-y-auto">
         <div className="max-w-xl mx-auto w-full flex flex-col flex-grow">
           {/* Progress Header */}
           <div className="mb-12">
