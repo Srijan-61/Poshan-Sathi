@@ -52,8 +52,8 @@ const VoiceLogger: React.FC<Props> = ({ foodLibrary, onLog }) => {
 
     const recognition = new SpeechRecognition();
     //recognition.lang = "en-IN";
-    recognition.lang = "en-US";
-    //recognition.lang = "ne-NP";
+    //recognition.lang = "en-US";
+    recognition.lang = "ne-NP";
     recognition.continuous = false;
 
     recognition.onstart = () => {

@@ -42,7 +42,7 @@ const RecommendationsWidget: React.FC<Props> = ({ onLog }) => {
   if (loading) {
     return (
       <div className="w-full flex gap-4 overflow-x-auto pb-4 hide-scrollbar">
-        {[1, 2, 3].map((i) => (
+        {[1, 2, 3, 4].map((i) => (
           <div
             key={i}
             className={`min-w-[240px] h-32 rounded-xl border animate-pulse flex flex-col p-4 justify-between ${"bg-white border-neutral-200"}`}
@@ -72,7 +72,7 @@ const RecommendationsWidget: React.FC<Props> = ({ onLog }) => {
         ! Here are some {mealType.toLowerCase()} ideas within your budget:
       </h3>
       <div className="flex gap-4 overflow-x-auto pb-4 hide-scrollbar">
-        {recommendations.slice(0, 3).map((food) => (
+        {recommendations.slice(0, 4).map((food) => (
           <div
             key={food._id}
             className={`min-w-[240px] flex-none rounded-xl border p-4 flex flex-col justify-between transition-shadow shadow-sm ${card}`}

@@ -107,7 +107,7 @@ const getRecommendations = catchAsync(async (req, res) => {
     },
     // Sort logic: first by time-of-day category match, then highest rating or calories
     { $sort: { isPreferredMeal: -1, calories: -1 } },
-    { $limit: 5 },
+    { $limit: 4 },
   ];
 
   const recommendations = await Food.aggregate(pipeline);
